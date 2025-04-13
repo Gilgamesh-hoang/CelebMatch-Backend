@@ -1,4 +1,4 @@
 .idea
-
-/Model
+.venv
+/Models
 /Dataset
