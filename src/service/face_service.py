@@ -3,9 +3,11 @@ import tensorflow as tf
 
 import src.face_recognition.facenet as facenet
 import src.utils.constant as constant
+from src.utils.constant import FACENET_MODEL_PATH
+
 
 class FaceNetModel:
-    def __init__(self, model_path: str):
+    def __init__(self):
         """
         Khởi tạo FaceNet model, tải một lần duy nhất.
 
@@ -19,8 +21,8 @@ class FaceNetModel:
                 config=tf.compat.v1.ConfigProto(gpu_options=self.gpu_options, log_device_placement=False)
             )
             with self.session.as_default():
-                print(f"Loading FaceNet model from {model_path}")
-                facenet.load_model(model_path)
+                print(f"Loading FaceNet model from {FACENET_MODEL_PATH}")
+                facenet.load_model(FACENET_MODEL_PATH)
                 self.images_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("input:0")
                 self.embeddings_tensor = tf.compat.v1.get_default_graph().get_tensor_by_name("embeddings:0")
                 self.phase_train_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("phase_train:0")
@@ -49,7 +51,7 @@ class FaceNetModel:
             images_data (list[np.ndarray]): A list of images represented as NumPy arrays.
 
         Returns:
-            list[np.ndarray]: A list of embeddings for the input images.
+            np.ndarray: A NumPy array of embeddings for the input images, with shape (n_images, embedding_dim).
         """
         if not images_data:
             return np.array([])

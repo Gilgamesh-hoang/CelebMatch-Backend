@@ -19,7 +19,7 @@ def create_dataset1(root_path: str, output_file: str):
     """
     # Khởi tạo PreprocessingService
     pre = PreprocessingService()
-    faceNet = FaceNetModel(constant.FACENET_MODEL_PATH)
+    faceNet = FaceNetModel()
 
     # Danh sách lưu dataset: [(embedding, label), ...]
     dataset = []
