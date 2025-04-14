@@ -16,7 +16,7 @@ class PreprocessingService:
     A service class for preprocessing images, including face detection, alignment, and resizing.
     """
 
-    def __init__(self, face_number_per_img: int = 1):
+    def __init__(self, face_number_per_img: int = 3):
         """
         Initializes the PreprocessingService with the maximum number of faces to detect per image.
 

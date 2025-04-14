@@ -7,6 +7,10 @@ import tensorflow as tf
 
 import src.utils.constant as constant
 from src.align.detect_face import create_mtcnn, detect_face
+from src.model.ProbabilityResult import ProbabilityResult
+from src.service.classification_service import ClassificationService
+from src.service.face_service import FaceNetModel
+from src.service.preprocessing_service import PreprocessingService
 
 
 def draw_bounding_boxes(image: np.ndarray, bboxes: np.ndarray, color: tuple = (0, 255, 0),
@@ -126,21 +130,35 @@ def detect():
     print('len:', len(files))
 
 
+def test_classify():
+    image = cv2.imread('C:\\Users\\FPT SHOP\\Pictures\\ghrth.jpg')
+
+    pre = PreprocessingService(face_number_per_img=10)
+    facenet = FaceNetModel()
+    classification = ClassificationService()
+
+    result = pre.pre_process_image([image])[0]
+
+    print('face number:', len(result.faces))
+    embeddings = facenet.get_embeddings(result.faces)
+
+    results :list[ProbabilityResult] = classification.predict(embeddings)
+    # In kết quả
+    for i, result in enumerate(results):
+        print(f"Khuôn mặt {i + 1}:")
+        print(f"Lớp: {result.class_id}, Xác suất: {result.probability:.4f}")
+
+test_classify()
 # detect()
 
-count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train")
+# count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train")
 
 
-# image = cv2.imread(
-#     'C:\\Users\\FPT SHOP\\Pictures\\Saved Pictures\\IMG_20240213_123353.jpg')
-#
-# pre = PreprocessingService(face_number_per_img=10)
-# result = pre.pre_process_image([image])[0]
-#
-# print('face number:', len(result.faces))
-# embeddings = get_embeddings(result.faces)
+# print('type:', type(embeddings))
 # print('embeddings:', len(embeddings))
+# print('embeddings shape:', embeddings.shape)
 # print('shape:', embeddings[0].shape)
+# print('embeddings:', embeddings[0])
 #
 # if result.bounding_boxes is not None:
 #     # Vẽ bounding_boxes lên ảnh gốc
