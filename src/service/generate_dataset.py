@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 
-import src.utils.constant as constant
+from src.database.face_embedding_repository import save
 from src.service.face_service import FaceNetModel
 from src.service.preprocessing_service import PreprocessingService
 
@@ -84,7 +84,7 @@ def create_dataset1(root_path: str, output_file: str):
             dataset.append((embedding, label))
 
         print(f"Đã thêm embedding cho label {label}: {len(embeddings)} embeddings")
-        print('-----------------------'*5)
+        print('-----------------------' * 5)
 
     # Lưu dataset vào file
     if dataset:
@@ -101,9 +101,10 @@ def create_dataset1(root_path: str, output_file: str):
 
     return dataset
 
+
 def create_dataset2(root_path: str, output_npz: str):
     pre = PreprocessingService()
-    faceNet = FaceNetModel(constant.FACENET_MODEL_PATH)
+    faceNet = FaceNetModel()
     dataset = []
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
@@ -149,21 +150,79 @@ def create_dataset2(root_path: str, output_npz: str):
                 if len(embeddings) > 1:
                     print(f"Tìm thấy nhiều khuôn mặt trong ảnh: {image_path}, chỉ lấy khuôn mặt đầu tiên.")
 
-
                 # Thêm các cặp (embedding, label) vào dataset
                 for embedding in embeddings:
                     count_emb += 1
                     dataset.append((embedding, label))
                     # print(f"Thêm embedding từ ảnh: {image_path}, Label: {label}")
         print(f"count_emb: {count_emb}")
-        print('-----------------------'*5)
-
+        print('-----------------------' * 5)
 
     if dataset:
         embeddings_array = np.array([item[0] for item in dataset])
         labels_array = np.array([item[1] for item in dataset])
         np.savez(output_npz, embeddings=embeddings_array, labels=labels_array)
         print(f"Đã lưu dataset vào: {output_npz}")
+
+
+def insert_embeddings_to_database(root_path: str):
+    pre = PreprocessingService()
+    faceNet = FaceNetModel()
+    supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
+
+
+    for dir_name in sorted(os.listdir(root_path)):
+        try:
+            label = int(dir_name)
+            if label < 1 or label > 30:
+                continue
+        except ValueError:
+            print(f"Bỏ qua thư mục không phải số: {dir_name}")
+            continue
+
+        sub_dir_path = os.path.join(root_path, dir_name)
+        if not os.path.isdir(sub_dir_path):
+            continue
+
+        print(f"Xử lý thư mục: {sub_dir_path} (Label: {label})")
+        for file_name in os.listdir(sub_dir_path):
+            if file_name.lower().endswith(supported_extensions):
+                image_path = os.path.join(sub_dir_path, file_name)
+                image = cv2.imread(image_path)
+                if image is None:
+                    print(f"Không thể đọc ảnh: {image_path}")
+                    continue
+
+                results = pre.pre_process_image([image])
+                if not results:
+                    print(f"Không tìm thấy khuôn mặt trong ảnh: {image_path}")
+                    continue
+
+                result = results[0]
+                if result.faces is None or not result.faces:
+                    print(f"Không có khuôn mặt được cắt từ ảnh: {image_path}")
+                    continue
+
+                # Lấy embeddings và kiểm tra độ dài
+                embeddings = faceNet.get_embeddings(result.faces)
+                # embeddings.shape = (1, 512)
+                if len(embeddings) == 0:
+                    print(f"Không lấy được embeddings từ ảnh: {image_path}")
+                    continue
+
+                if len(embeddings) > 1:
+                    print(f"Tìm thấy nhiều khuôn mặt trong ảnh: {image_path}, chỉ lấy khuôn mặt đầu tiên.")
+
+                # Lấy embedding đầu tiên
+                embedding = embeddings[0]  # Shape: (512,)
+
+                # Serialize embedding to bytes
+                embedding_bytes = embedding.tobytes()
+
+                # Thêm vào database
+                save(label, embedding_bytes)
+
+
 
 
 def load_dataset(file_path: str):
@@ -183,7 +242,10 @@ def load_dataset(file_path: str):
     print(f"Total number of labels: {len(labels)}")
     print(f"Unique labels: {np.unique(labels)}")
 
+# insert_embeddings_to_database("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb")
+
+
 # create_dataset2("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\test",
 #                "E:\\CelebMatch\\Dataset\\test")
 
-load_dataset("E:\\CelebMatch\\Dataset\\test.npz")
+# load_dataset("E:\\CelebMatch\\Dataset\\test.npz")

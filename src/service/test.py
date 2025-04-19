@@ -4,9 +4,10 @@ from collections import defaultdict
 import cv2
 import numpy as np
 import tensorflow as tf
-
+from scipy.spatial.distance import cosine
 import src.utils.constant as constant
 from src.align.detect_face import create_mtcnn, detect_face
+from src.database.face_embedding_repository import get_embedding_by_id
 from src.model.ProbabilityResult import ProbabilityResult
 from src.service.classification_service import ClassificationService
 from src.service.face_service import FaceNetModel
@@ -68,7 +69,7 @@ def detect():
         with sess.as_default():
             pnet, rnet, onet = create_mtcnn(sess, constant.DET_MODEL_DIR)  # Tải mô hình MTCNN
 
-            path = "D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train"
+            path = "D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb"
             # Các định dạng ảnh được hỗ trợ
             supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
@@ -148,17 +149,55 @@ def test_classify():
         print(f"Khuôn mặt {i + 1}:")
         print(f"Lớp: {result.class_id}, Xác suất: {result.probability:.4f}")
 
-test_classify()
+
+def compare_embeddings():
+    # image = cv2.imread('C:\\Users\\FPT SHOP\\Pictures\\ghrth.jpg')
+    image = cv2.imread('D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb\\1\\1671998465655418000.jpg')
+
+    pre = PreprocessingService(face_number_per_img=10)
+    facenet = FaceNetModel()
+
+    result = pre.pre_process_image([image])[0]
+
+    print('face number:', len(result.faces))
+    embeddings = facenet.get_embeddings(result.faces)
+
+    # In kích thước của embeddings
+    # print('embeddings shape:', embeddings.shape)
+    embedding1 = embeddings[0]
+
+    face = get_embedding_by_id(1)
+    embedding2 = face.embedding
+
+    # print(embedding1)
+    # print(('---' * 20))
+    # print(embedding2)
+
+    # Check exact equality
+    exact_match = np.array_equal(embedding1, embedding2)
+
+    # Compute cosine similarity
+    # Cosine distance = 1 - cosine similarity
+    cosine_distance = cosine(embedding1, embedding2)
+    cosine_similarity = 1 - cosine_distance
+
+    # Determine if they represent the same person (using a common threshold)
+    similarity_threshold = 0.6  # Adjust based on your FaceNet model
+    is_same_person = cosine_similarity > similarity_threshold
+
+    print('res:', {
+        "exact_match": exact_match,
+        "cosine_similarity": cosine_similarity,
+        "cosine_distance": cosine_distance,
+        "is_same_person": is_same_person,
+    })
+
+
+# compare_embeddings()
 # detect()
 
-# count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train")
+# count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb")
 
-
-# print('type:', type(embeddings))
-# print('embeddings:', len(embeddings))
-# print('embeddings shape:', embeddings.shape)
-# print('shape:', embeddings[0].shape)
-# print('embeddings:', embeddings[0])
 #
 # if result.bounding_boxes is not None:
 #     # Vẽ bounding_boxes lên ảnh gốc
