@@ -11,7 +11,7 @@ def get_celebrity_by_id(celebrity_id: int) -> Optional[Celebrity]:
     query = """
         SELECT id, full_name, occupation, nationality, birth_date,
                residence, biography, awards, songs
-        FROM Celebrities
+        FROM celebrities
         WHERE id = %s
     """
     cursor.execute(query, (celebrity_id,))
