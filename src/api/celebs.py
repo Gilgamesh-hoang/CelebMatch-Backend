@@ -40,7 +40,7 @@ async def predict(upload_file: UploadFile = File(...)) -> JSONResponse:
             prediction_results = classification_service.predict(embedding)
 
             # Duyệt qua từng kết quả phân loại
-            # test
+            # test 2
 
             for i, pred in enumerate(prediction_results):
                 # Lấy thông tin người nổi tiếng từ ID
