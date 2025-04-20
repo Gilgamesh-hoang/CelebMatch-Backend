@@ -15,30 +15,49 @@ import traceback
 router = APIRouter()
 
 @router.post("/predict")
-async def predict(upload_file: UploadFile = File(...)):
+async def predict(upload_file: UploadFile = File(...)) -> JSONResponse:
     try:
-        image_bytes = await upload_file.read()
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        image_np = np.array(image)
+        # Đọc ảnh từ file upload
+        image_bytes: bytes = await upload_file.read()
+        image: Image.Image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image_np: np.ndarray = np.array(image)
+
+        # Khởi tạo các service và model
         preprocessing_service = PreprocessingService()
         classification_service = ClassificationService()
         facenet_model = FaceNetModel()
+
+        # Tiền xử lý ảnh, nhận diện khuôn mặt
         preprocessed_objects = preprocessing_service.pre_process_image([image_np])
-        result = []
+        result: list[dict] = []
+
+        # Lấy đối tượng tiền xử lý đầu tiên (chỉ xét ảnh đầu tiên trong danh sách)
         preprocessed_object = preprocessed_objects[0]
+
+        # Nếu phát hiện khuôn mặt thì trích xuất embedding và phân loại
         if preprocessed_object is not None and preprocessed_object.faces is not None:
-            embedding = facenet_model.get_embeddings(preprocessed_object.faces)
+            embedding: np.ndarray = facenet_model.get_embeddings(preprocessed_object.faces)
             prediction_results = classification_service.predict(embedding)
-            for pred in prediction_results:
+
+            # Duyệt qua từng kết quả phân loại
+            for i, pred in enumerate(prediction_results):
+                # Lấy thông tin người nổi tiếng từ ID
                 singer_info = get_celebrity_by_id(pred.class_id)
                 if singer_info is None:
                     continue
+
+                # Thêm kết quả vào danh sách trả về
                 result.append({
-                    "bounding_box": preprocessed_object.bounding_boxes.flatten().tolist(),
+                    "bounding_box": preprocessed_object.bounding_boxes[i].tolist()[:4],
                     "singer": jsonable_encoder(singer_info),
-                    "probability": round(pred.probability, 2)
+                    "probability": pred.probability
                 })
+
+        # Trả về kết quả với mã trạng thái 200 (OK)
         return JSONResponse(status_code=http.HTTPStatus.OK,content=result)
     except Exception as e:
+        # In traceback ra log (debug)
         traceback.print_exc()
+
+        # Trả về lỗi nếu xảy ra exception
         return JSONResponse(status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR, content={"error": str(e)})
