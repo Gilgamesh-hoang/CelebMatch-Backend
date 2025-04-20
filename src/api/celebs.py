@@ -39,9 +39,7 @@ async def predict(upload_file: UploadFile = File(...)) -> JSONResponse:
             embedding: np.ndarray = facenet_model.get_embeddings(preprocessed_object.faces)
             prediction_results = classification_service.predict(embedding)
 
-            # Duyệt qua từng kết quả phân loại
-            # test 2
-
+            # Duyệt qua từng kết quả phân loạic
             for i, pred in enumerate(prediction_results):
                 # Lấy thông tin người nổi tiếng từ ID
                 singer_info = get_celebrity_by_id(pred.class_id)
