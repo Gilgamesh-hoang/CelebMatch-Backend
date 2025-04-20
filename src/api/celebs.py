@@ -25,19 +25,16 @@ async def predict(upload_file: UploadFile = File(...)):
         facenet_model = FaceNetModel()
         preprocessed_objects = preprocessing_service.pre_process_image([image_np])
         result = []
-        for preprocessed_object in preprocessed_objects:
-            if preprocessed_object is None or preprocessed_object.faces is None:
-                continue
-
+        preprocessed_object = preprocessed_objects[0]
+        if preprocessed_object is not None and preprocessed_object.faces is not None:
             embedding = facenet_model.get_embeddings(preprocessed_object.faces)
             prediction_results = classification_service.predict(embedding)
-
             for pred in prediction_results:
                 singer_info = get_celebrity_by_id(pred.class_id)
                 if singer_info is None:
                     continue
                 result.append({
-                    "bounding_box": preprocessed_object.bounding_boxes.tolist(),
+                    "bounding_box": preprocessed_object.bounding_boxes.flatten().tolist(),
                     "singer": jsonable_encoder(singer_info),
                     "probability": round(pred.probability, 2)
                 })
