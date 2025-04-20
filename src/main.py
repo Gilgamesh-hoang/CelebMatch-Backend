@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from src.database.celebrity_repository import get_celebrity_by_id
+from api.celebs import router as celebs_router
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import uvicorn
@@ -28,6 +29,7 @@ app.add_middleware(
     allow_headers=["Content-Type"]
 )
 
+app.include_router(celebs_router)
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -35,6 +37,9 @@ async def root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
+
+
+app.include_router(celebs_router)
 
 if __name__ == "__main__":
     # port = int(os.getenv("PORT", 8111))  # Lấy port từ biến môi trường hoặc dùng 8000 mặc định

@@ -10,7 +10,7 @@ def get_connection() -> MySQLConnection:
     # )
     return mysql.connector.connect(
         host='localhost',
-        user='admin',
-        password='admin',
+        user='root',
+        password='password',
         database='celeb_match',
     )
