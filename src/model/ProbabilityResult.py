@@ -1,3 +1,6 @@
+from pydantic import BaseModel
+
+
 class ProbabilityResult:
     """
     Represents the probability of a specific class in a classification result.
@@ -19,6 +22,7 @@ class ProbabilityResult:
 
 
 class PredictionResult:
+
     """
     Represents the prediction result, including the predicted class and top probabilities.
     """

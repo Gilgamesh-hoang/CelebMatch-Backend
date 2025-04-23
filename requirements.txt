@@ -8,3 +8,4 @@ scikit-learn~=1.6.1
 scipy~=1.15.2
 imageio~=2.37.0
 mysql-connector-python
+python-multipart~=0.0.20
