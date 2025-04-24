@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from src.controller import celebrity_controller
 from src.database.celebrity_repository import get_celebrity_by_id
 from api.celebs import router as celebs_router
 
@@ -28,17 +29,7 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"]
 )
-
-app.include_router(celebs_router)
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
-
-
+app.include_router(celebrity_controller.router)
 app.include_router(celebs_router)
 
 if __name__ == "__main__":
