@@ -2,19 +2,23 @@ from typing import List
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, UploadFile, HTTPException, File
+from fastapi import APIRouter, UploadFile, File
+from fastapi import HTTPException
 from scipy.spatial.distance import cosine
+
 from src.service.face_service import FaceNetModel
 from src.service.preprocessing_service import PreprocessingService
 
 router = APIRouter()
 preprocessing_service = PreprocessingService()
 facenet_model = FaceNetModel()
-THRESHOLD = 0.4 # Ngưỡng chấp nhận
+
 
 # endpoint này chấp nhận request POST với body là FormData có field "file" chứa File hình ảnh.
 @router.post("/verify")
 async def verify(files: List[UploadFile] = File(...)):
+    THRESHOLD = 0.4
+
     # Kiểm tra số lượng file tải lên là 2
     if len(files) != 2:
         raise HTTPException(status_code=400, detail="Exactly two image files are required.")
@@ -33,9 +37,9 @@ async def verify(files: List[UploadFile] = File(...)):
     # Xử lý ảnh để phát hiện khuôn mặt
     results = preprocessing_service.pre_process_image(images)
 
-    # Kiểm tra nếu mỗi ảnh có ít nhất 1 khuôn mặt
-    if len(results) != 2 or len(results[0].faces) == 0 or len(results[1].faces) == 0:
-        raise HTTPException(status_code=400, detail="Each image must contain at least one face.")
+    # Kiểm tra mỗi ảnh có duy nhat một khuôn mặt
+    if len(results) != 2 or len(results[0].faces) != 1 or len(results[1].faces) != 1:
+        raise HTTPException(status_code=400, detail="Each image must contain exactly one face.")
 
     # Lấy khuôn mặt đầu tiên trong mỗi ảnh
     face1 = results[0].faces[0]
@@ -50,7 +54,7 @@ async def verify(files: List[UploadFile] = File(...)):
 
     # Tính khoảng cách cosine giữa hai embedding
     similarity_score = cosine(emb1, emb2)
-    similarity_score = similarity_score.item() #Chuyển numpy.float64 thành float chuẩn
+    similarity_score = similarity_score.item()  # Chuyển numpy.float64 thành float chuẩn
     is_same_person = bool(similarity_score < THRESHOLD)
     return {
         "is_same_person": is_same_person,
