@@ -100,6 +100,12 @@ async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
 
         face = preprocessed_object.faces
 
+        if len(face) > 1:
+            return JSONResponse(
+                status_code=http.HTTPStatus.BAD_REQUEST,
+                content={"message": "Multiple faces detected. Please upload an image with only one face."}
+            )
+
         # 2. Trích xuất embedding của khuôn mặt
         embedding: np.ndarray = facenet_model.get_embeddings(face)
 
