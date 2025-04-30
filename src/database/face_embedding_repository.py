@@ -8,7 +8,6 @@ def save(label: int, embedding_bytes: bytes):
     connection = get_connection()
     cursor = connection.cursor()
 
-
     try:
         insert_query = "INSERT INTO face_embeddings (user_id, embedding) VALUES (%s, %s)"
         cursor.execute(insert_query, (label, embedding_bytes))
@@ -19,6 +18,7 @@ def save(label: int, embedding_bytes: bytes):
 
     cursor.close()
     connection.close()
+
 
 def get_embedding_by_id(user_id: int) -> FaceEmbedding | None:
     """
@@ -57,3 +57,23 @@ def get_embedding_by_id(user_id: int) -> FaceEmbedding | None:
     finally:
         cursor.close()
         connection.close()
+
+
+def load_celebrity_embeddings() -> dict[int, np.ndarray]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT user_id, embedding FROM face_embeddings"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    embeddings = {}
+    for user_id, embedding_bytes in rows:
+        if embedding_bytes:
+            embedding_array = np.frombuffer(embedding_bytes, dtype=np.float32)
+            embeddings[user_id] = embedding_array
+
+    return embeddings
