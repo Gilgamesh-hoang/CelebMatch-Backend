@@ -1,15 +1,4 @@
-# Test your FastAPI endpoints
-
-GET http://127.0.0.1:8000/
-Accept: application/json
-
 ###
-
-GET http://127.0.0.1:8000/hello/User
-Accept: application/json
-
-###
-
 POST http://127.0.0.1:8000/predict
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
@@ -19,3 +8,16 @@ Content-Type: image/jpeg
 
 < test/test_celeb7.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+POST http://127.0.0.1:8000/lookalike
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="upload_file"; filename="test_celeb1.jpg"
+Content-Type: image/jpeg
+
+< test/test_celeb1.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
