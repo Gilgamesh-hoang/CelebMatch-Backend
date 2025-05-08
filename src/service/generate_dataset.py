@@ -170,7 +170,6 @@ def insert_embeddings_to_database(root_path: str):
     faceNet = FaceNetModel()
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
-
     for dir_name in sorted(os.listdir(root_path)):
         try:
             label = int(dir_name)
@@ -223,8 +222,6 @@ def insert_embeddings_to_database(root_path: str):
                 save(label, embedding_bytes)
 
 
-
-
 def load_dataset(file_path: str):
     # Tải tệp .npz
     data = np.load(file_path)
@@ -242,10 +239,45 @@ def load_dataset(file_path: str):
     print(f"Total number of labels: {len(labels)}")
     print(f"Unique labels: {np.unique(labels)}")
 
-# insert_embeddings_to_database("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb")
+
+def check_image(root_path: str):
+    pre = PreprocessingService()
+    faceNet = FaceNetModel()
+    supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
+
+    for dir_name in sorted(os.listdir(root_path)):
+        sub_dir_path = os.path.join(root_path, dir_name)
+        if not os.path.isdir(sub_dir_path):
+            print(f"Bỏ qua vì không phải thư mục: {sub_dir_path}")
+            continue
+
+        print(f"Xử lý thư mục: {sub_dir_path} (Label: {sub_dir_path})")
+        for file_name in os.listdir(sub_dir_path):
+            if file_name.lower().endswith(supported_extensions):
+                image_path = os.path.join(sub_dir_path, file_name)
+                image = cv2.imread(image_path)
+                if image is None:
+                    print(f"Không thể đọc ảnh: {image_path}")
+                    continue
+
+                results = pre.pre_process_image([image])
+                if not results:
+                    print(f"Không tìm thấy khuôn mặt trong ảnh: {image_path}")
+                    continue
+
+                result = results[0]
+                if result.faces is None or not result.faces:
+                    print(f"Không có khuôn mặt được cắt từ ảnh: {image_path}")
+                    continue
+
+                # Lấy embeddings và kiểm tra độ dài
+                embeddings = faceNet.get_embeddings(result.faces)
+                if len(embeddings) == 0:  # Sửa lỗi ở đây
+                    print(f"Không lấy được embeddings từ ảnh: {image_path}")
+                    continue
+
+                if len(embeddings) > 1:
+                    print(f"Tìm thấy nhiều khuôn mặt trong ảnh: {image_path}, chỉ lấy khuôn mặt đầu tiên.")
 
 
-# create_dataset2("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\test",
-#                "E:\\CelebMatch\\Dataset\\test")
-
-# load_dataset("E:\\CelebMatch\\Dataset\\test.npz")
+check_image("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train")

@@ -33,6 +33,8 @@ async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
         # 1. Preprocess ảnh: detect và crop khuôn mặt
         preprocessed_objects = preprocessing_service.pre_process_image([image_np])
 
+        print("Preprocessed objects:")
+
         if not preprocessed_objects:
             return JSONResponse(
                 status_code=http.HTTPStatus.BAD_REQUEST,
@@ -48,6 +50,7 @@ async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
             )
 
         face = preprocessed_object.faces
+        print(f"Detected faces: {len(face)}")
 
         if len(face) > 1:
             return JSONResponse(
@@ -67,6 +70,7 @@ async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
         with ThreadPoolExecutor() as executor:
             distances = list(executor.map(compute_distance, celebrity_embeddings.items()))
 
+        print("Distances:")
         # 4. Tìm 2 người nổi tiếng giống nhất
         top_matches = sorted(distances, key=lambda x: x[1])[:2]
 
