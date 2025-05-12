@@ -14,7 +14,7 @@ USE `celeb_match`;
 CREATE TABLE IF NOT EXISTS `awards` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `award` int NOT NULL,
+  `award` nvarchar(255) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_awards_celebrities` (`user_id`),
   CONSTRAINT `FK_awards_celebrities` FOREIGN KEY (`user_id`) REFERENCES `celebrities` (`id`)
@@ -120,7 +120,7 @@ INSERT INTO `face_embeddings` (`user_id`, `embedding`, `img_url`) VALUES
 CREATE TABLE IF NOT EXISTS `songs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `song` int NOT NULL,
+  `song` nvarchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_songs_celebrities` (`user_id`),
   CONSTRAINT `FK_songs_celebrities` FOREIGN KEY (`user_id`) REFERENCES `celebrities` (`id`)
@@ -144,6 +144,31 @@ ON DUPLICATE KEY UPDATE
                      birth_date = VALUES(birth_date),
                      residence = VALUES(residence),
                      biography = VALUES(biography);
+
+INSERT INTO celebrities (id, full_name, occupation, nationality, birth_date, residence, biography)
+SELECT id, full_name, occupation, nationality, birth_date, residence, biography
+FROM celebrities2
+WHERE id BETWEEN 1 AND 5
+ON DUPLICATE KEY UPDATE
+                     full_name = VALUES(full_name),
+                     occupation = VALUES(occupation),
+                     nationality = VALUES(nationality),
+                     birth_date = VALUES(birth_date),
+                     residence = VALUES(residence),
+                     biography = VALUES(biography);
+
+INSERT INTO celebrities (id, full_name, occupation, nationality, birth_date, residence, biography)
+SELECT id, full_name, occupation, nationality, birth_date, residence, biography
+FROM celebrities2
+WHERE id BETWEEN 14 AND 21
+ON DUPLICATE KEY UPDATE
+                     full_name = VALUES(full_name),
+                     occupation = VALUES(occupation),
+                     nationality = VALUES(nationality),
+                     birth_date = VALUES(birth_date),
+                     residence = VALUES(residence),
+                     biography = VALUES(biography);
+
 
 INSERT INTO songs (user_id, song)
 VALUES
@@ -272,6 +297,114 @@ VALUES
     (13, 'Tĩnh lặng (2013) (Vol 8)'),
     (13, 'Hương xưa I (2016)');
 
+INSERT INTO songs (user_id, song) VALUES
+-- 1: Bích Phương
+(1,'Gửi Anh Xa Nhớ'), (1,'Tết Nhẹ Nhàng'), (1,'Rằng Em Mãi Ở Bên'), (1,'Vâng Anh Đi Đi'), (1,'Sâu Trong Em'), (1,'Điều Chưa Từng Nói'), (1,'Nụ Hồng Mong Manh'),
+(1,'Mình Yêu Nhau Đi'), (1,'Chỉ Là Em Giấu Đi'), (1,'Có Lẽ Em (Remix)'), (1,'Có Lẽ Em'),
+(1,'Chạm Vào Mưa - Ft Nukan Trần Tùng Anh'), (1,'Nơi Nào Có Em - Ft Nukan Trần Tùng Anh'), (1,'Ơ Hay - Ft Nguyễn Minh Hằng'),
+
+-- 2: Cao Thái Sơn
+(2,'Mình Sẽ Hạnh Phúc Giống Người Ta'), (2,'Anh Vẫn Yêu Em Như Ngày Đầu Tiên'), (2,'Người Thứ Ba'), (2,'Rẽ Lối'),
+(2,'Yêu Một Người Mộng Mơ'), (2,'Dancefloor'), (2,'Yêu Em Là Định Mệnh'), (2,'Tôi Nghe Tổ Quốc Gọi Tên Minh'),
+(2,'Quan Thế Âm Bồ Tát'), (2,'Như Hai Người Dưng'), (2,'Sẽ Có Người Cần Anh'), (2,'Anh Sợ'), (2,'Chào Xuân'),
+(2,'Điều Ngọt Ngào Nhất'), (2,'Nắng Sân Trường'), (2,'Khoảng Cách... anh và...'), (2,'Ngày Nào Có Nhau'),
+(2,'Anh Sai Rồi'), (2,'Gió Lạnh'), (2,'Lệ Đá'),
+
+-- 3: Cẩm Ly
+(3,'Hai Lối Mộng'), (3,'Người Tình Quê - Ft Quốc Đại'), (3,'Nhớ Nhau Hoài (Tuyệt Phẩm Trữ Tình) - Ft Quốc Đại'), (3,'Trở Lại Phố Cũ'), (3,'Sầu Đâu Quê Ngoại'),
+(3,'Cô Bé Kính Cận - Ft Lam Trường'), (3,'Thương Nhớ Người Dưng - Ft Lam Trường'), (3,'Tình Ca Lam Phương'),
+(3,'Không Bao Giờ Quên Anh'), (3,'Tự Tình Quê Hương 2'), (3,'Chiều Cuối Tuần - Thiên Đàng Ái Ân'),
+(3,'Cô Tư Bến Phà - Tôi Mơ'), (3,'Đêm Nhớ - Nếu Anh Quên Tất Cả CD2 - Ft Nguyễn Phi Hùng'),
+(3,'Đêm Nhớ - Nếu Anh Quên Tất Cả CD1 - Ft Nguyễn Phi Hưng'), (3,'Nửa Trái Tim'), (3,'Mưa Tình Yêu - Ft Cảnh Hàn'),
+(3,'Khi Người Yêu Tôi Khóc - Ft Cảnh Hàn'), (3,'Em Quên Mùa Đông - Ft Đan Trường, Lam Trường'),
+(3,'Em Là Hạnh Phúc Đời Anh - Ft Đan Trường'), (3,'Những Tình Khúc Nguyễn Nhất Huy'),
+(3,'Tình Cuối Mùa Đông (Top Hits)'), (3,'Trái Tim Màu Vàng - Ft Vân Quang Long'), (3,'Kẻ Đứng Sau Tình Yêu'),
+(3,'Bến Vắng - Biết Yêu Khi Nào'), (3,'Buồn Con Sáu Sậu'),
+(3,'Người Nhớ Không Người - Em Sẽ Là Người Ra Đi'), (3,'Người Ơi Hãy Chia Tay'),
+(3,'Khi Đã Yêu'), (3,'Mùa Mưa Đi Qua'), (3,'Tuổi Mộng Xứ Đông – 12 Bến Nước'),
+(3,'Em Không Thể Quên'), (3,'Sáo Sang Sông - Mùa Đông Xứ Lạ'), (3,'Em Sẽ Quên... Đêm Có Mưa Rơi'),
+(3,'Nhớ Người Yêu - Ft Quốc Đại'), (3,'Cô Gái Mở Đường - Ft Quốc Đại'), (3,'Noel Một Mình - Anh Về Miền Tây - Ft Quốc Đại'),
+(3,'Ngọn Trúc Đào - Ft Quốc Đại'),
+
+-- 4: Chi Dân
+(4,'Mất Trí Nhớ'), (4,'Giả Vờ Nhưng Anh Yêu Em'), (4,'Anh Không Sao Đâu (Remix)'), (4,'Vẫn Là Em'),
+
+-- 5: Erik
+(5,'Sau tất cả'), (5,'Lạc nhau có phải muôn đời'), (5,'Yêu và yêu'),
+(5,'Chạm đáy nỗi đau'), (5,'Mình chia tay đi'), (5,'Có tất cả nhưng thiếu anh'), (5,'Em không sai, chúng ta sai'),
+(5,'Anh luôn là lý do'), (5,'Yêu đương khó quá thì chạy về khóc với anh'), (5,'Đau nhất là lặng im'),
+(5,'Người lại trong danh bạ'), (5,'Cho dù tận thế'),
+
+-- 14: Jang Mi
+(14,'Nhớ thương làm chi'), (14,'Đừng hỏi em cover'), (14,'I don’t like to sleep cover'),
+(14,'Chuyện ba mùa mưa cover'), (14,'Sầu tím thiệp hồng cover'), (14,'Bối rối cover'), (14,'Ánh trăng nói hộ lòng tôi cover'),
+(14,'Để khoảnh khắc mãi đong đầy cover'), (14,'Ừ có anh đây cover'), (14,'Vừng lá me bay cover'),
+(14,'Trả lại thời gian cover'), (14,'Đừng tin em mạnh mẽ'), (14,'Mùa thu lá bay cover'), (14,'Phượng buồn cover'),
+(14,'Yêu là phải liều'), (14,'Sáng nay mưa'), (14,'Trọn tình'), (14,'Mặt trái của hạnh phúc'), (14,'Dạ cổ hoài lang cover'),
+(14,'Duyên phận cover'),
+
+-- 15: Lam Trường
+(15,'Xin đến trong giấc mộng. Ngày phát hành: 1/1/1999.'), (15,'Vol 1: Mãi mãi. Ngày phát hành: 28/6/1999.'),
+(15,'Tình thôi xót xa 1-2-3. Hãng Phim Trẻ (1999)'), (15,'Yêu nhau ghét nhau - Lam Trường (1999)'),
+(15,'Cô bé kính cận - Lam Trường & Cẩm Ly (1999)'), (15,'Biển trắng (Nhạc Hoa Vol 1). Ngày phát hành: 28/11/2000.'),
+(15,'Vol 2: Chút tình thơ ngây. Ngày phát hành: 4/4/2000.'), (15,'Vol 3: Có một ngày. Ngày phát hành: 24/11/2001.'),
+(15,'Vol 4: Đêm lạnh. Ngày phát hành: 19/1/2003.'), (15,'Vol 5: Dù ta không còn yêu. Ngày phát hành: 16/9/2003.'),
+(15,'Vol 6: Đôi chân thiên thần. Ngày phát hành: 21/7/2004.'), (15,'Vol 7: Khi em ra đi. Ngày phát hành: 10/10/2005.'),
+(15,'Vol 8: Anh nhớ em. Ngày phát hành: 11/8/2006.'), (15,'Vol 9: Đôi giày vải. Ngày phát hành: 31/10/2006.'),
+(15,'Vol 10: Chuyện hôm qua. Ngày phát hành: 2007.'), (15,'Vol 11: TODAY (Ngày hôm nay). Ngày phát hành: 6/8/2008.'),
+(15,'Vol 12: Con đường tình yêu. Ngày phát hành: 2009.'), (15,'Vol 13: Khi người yêu tôi khóc (2011)'),
+(15,'Vol 14: Mong em hạnh phúc (2013)'), (15,'Vol 15: Đi qua bốn mùa (2015)'),
+
+(16, 'Anh không muốn bất công với em 2, 2004'),
+(16, 'We are H.A.T, 2005'),
+(16, 'Cô gái Trung Hoa (Vol.1), 2005'),
+(16, 'Ây da ây da (Vol.2), 2007'),
+(16, 'It''s Not Over (Vol.3), 2008'),  -- <== dùng 2 dấu nháy đơn
+(16, 'Cô gái Trung Hoa trở lại, 2009'),
+(16, 'Story Of Time, 2010'),
+(16, 'Gọi tên nhau mãi (Vol.4), 2010'),
+(16, 'Lương Bích Hữu Collection 2011, 2011'),
+(16, 'Cô nàng đẹp trai, 2012'),
+(16, 'Học cách đi một mình, 2013'),
+(16, 'Người lạ từng yêu (ft. Tam Hổ), 2013'),
+(16, 'Đứt từng đoạn ruột, 2013'),
+(16, 'Có kiếp sau không (ft. Đan Trường), 2013'),
+(16, 'Anh muốn chia tay phải không?, 2014'),
+(16, 'Mình cưới nhau nhé (ft. Hồ Quang Hiếu), 2014'),
+(16, 'Em chọn cô đơn, 2015'),
+(16, 'Đến sau phải lau nước mắt, 2015'),
+(16, 'Hữu với dance (DJ Phơ Nguyễn), 2015'),
+(16, 'Tình yêu trong vòng tay, 2015'),
+(16, 'Người ta nói đúng, 2016'),
+(16, 'Party girl, 2017'),
+
+-- 17: Lynk Lee
+(17,'Em Ơi (Single)'), (17,'Việt Nam Quê Tôi'), (17,'Tát Nước Đầu Đình (Single)'), (17,'Nhật Ký Lớp Tôi'),
+(17,'Tuyển Tập Các Bài Hát Hay Nhất Của Lynk Lee'), (17,'Hoàng Hôn Tắt (Single)'), (17,'Cho Tôi Xin Một Vé Đi Tuổi Thơ (Single)'),
+(17,'Ngày Ấy Bạn Và Tôi'), (17,'Nắm Chặt Tay Anh Nhé (Single)'), (17,'Xuân Xuống Phố (Single)'), (17,'Nếu Có Thể Được Yêu'),
+(17,'Quà Tặng Ngày Yêu'), (17,'Tiếng Mưa (Single)'), (17,'Tạm Biệt Nhé'),
+
+-- 18: Minh Hằng
+(18,'Một Vòng Trái Đất'), (18,'Người vô hình'), (18,'Cơn mưa nhỏ'), (18,'Đến giờ phút này'), (18,'Sắc Môi Em Hồng'),
+(18,'Vui hay buồn'),(18, 'album vol 1: Một Vòng Trái Đất'), (18, 'Album vol 2: Giờ Em Đã Biết'),
+
+-- 19: Ngô Kiến Huy
+(19,'Yêu như không yêu (2008) - Ngô Kiến Huy'), (19,'Chạm tay vào điều ước (2010) - Ngô Kiến Huy'),
+(19,'Cho vơi nhẹ lòng (2011) - Ngô Kiến Huy'), (19,'Sau một nụ cười (2012) - Ngô Kiến Huy'),
+
+-- 20: Phương Thanh
+(20,'Giã từ dĩ vãng'), (20,'Một thời đã xa'), (20,'Lang thang - Tình 2000'), (20,'Tiếng rao'), (20,'Ta chẳng còn ai'),
+(20,'Chào năm 2000'), (20,'The Best of Phương Thanh: Tình 2010'), (20,'Vol. 1 - Nếu như... trót yêu'),
+(20,'Vol. 2 - Khi giấc mơ về'), (20,'Vol. 3 - Hãy để em ra đi... Vì em yêu anh'), (20,'Vol. 4 - Quay về ngày xưa'),
+(20,'Vol. 5 - Thương một người'), (20,'Vol. 6 - Tìm lại lời thề'), (20,'Vol. 7 - Sang mùa'), (20,'Con ốc Bươu'),
+(20,'Quay về đây'), (20,'Mèo hoang'),
+
+-- 21: Quang Lê
+(21,'Sương trắng miền quê ngoại'), (21,'Đập vỡ cây đàn'), (21,'7000 đêm góp lại (2005)'), (21,'Không phải tại chúng mình (2012)'),
+(21,'Kẻ ở miền xa (2004)'), (21,'Xin gọi nhau là cố nhân (2004)'), (21,'Chuyện tình không dĩ vãng (2013)'),
+(21,'Chuyện tình hoa 10 giờ (2013)'), (21,'Ở hai đầu nỗi nhớ (2014)'), (21,'Hai quê (2008)'), (21,'Tương tư nàng ca sĩ (2009)')
+;
+
 INSERT INTO awards (user_id, award) VALUES
                                         (6, 'Giải thưởng Cánh Diều Vàng - Nữ diễn viên xuất sắc của năm 2013: Đề cử (Thần tượng)'),
                                         (6, 'Giải thưởng Cống Hiến - Video âm nhạc của năm 2017: Đề cử (Bánh trôi nước)'),
@@ -381,3 +514,86 @@ INSERT INTO awards (user_id, award) VALUES
                                         (13, '2016 - Top 3 Album của năm tại Zing music awards'),
                                         (13, '2017 - Ca sĩ được yêu thích nhất trong Năm - Bảng Vàng (Top Gold)'),
                                         (13, '2020 - Kỷ lục Thế giới và kỷ niệm chương từ Viện nội dung Kỷ lục thế giới – WRCA "Nữ ca sĩ, Kỷ lục gia đầu tiên của Việt Nam sáng lập chuỗi thương hiệu mang tên Loving Vegan, giúp mọi người hướng tới cuộc sống tâm hồn an bình, phục vụ sức khỏe cho cộng đồng xã hội"');
+INSERT INTO awards (user_id, award) VALUES
+-- 1: Bích Phương
+(1,'2010: Top 7 chương trình Việt Nam Idol'),
+(1,'2013: Giải Ca sĩ triển vọng do Yan Vpop 20 Awards Bình chọn.'),
+(1,'2013: Album "Chỉ là em giấu đi" lọt Top 3 Album được yêu thích nhất Zing Music Awards.'),
+(1,'2013: Album "Chỉ là em giấu đi" đạt giải hạng mục "Album đứng đầu nhiều tuần nhất" Zing Music Awards'),
+(1,'2013, lọt vào Top 20 ca sĩ được yêu thích nhất do Yan Vpop 20 Awards Bình chọn.'),
+(1,'2014: Single "Mình yêu nhau đi" đạt Giải thưởng Ca khúc Pop của năm do Zing Music Awards.'),
+(1,'2014: Single "Mình yêu nhau đi" đạt Giải thưởng Ca khúc được cộng đồng mạng chia sẻ nhiều nhất do Zing Music Awards Bình chọn.'),
+(1,'2014: Lọt TOP 20 ca sĩ được yêu thích nhất do YanVpop20 Awards Bình chọn.'),
+(1,'2014: MV "Mình yêu nhau đi" đạt Giải thưởng Music Video đứng đầu BXH nhiều tuần nhất do Zing Music Awards Bình chọn.'),
+
+-- 2: Cao Thái Sơn
+(2,'Làn Sóng Xanh'),
+(2,'Album Vàng'),
+(2,'Zing Music Awards'),
+
+-- 3: Cẩm Ly
+(3,'2001-2002: Top ten Làn Sóng Xanh'), (3,'2001-2002: Ca sĩ được yêu thích của báo Mực Tím'),
+(3,'2001-2002: Ca sĩ được yêu thích của CLB Chiều Thứ 5'), (3,'2002: Giải Mai Vàng do Báo Người Lao động tổ chức'),
+(3,'2002-2003: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'), (3,'2003-2004: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'),
+(3,'2003-2004: Giải VTV - Bài Hát Tôi Yêu - "Em Chưa Biết Yêu"'), (3,'2004-2005: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'),
+(3,'2005: Giải VTV - Bài Hát Tôi Yêu - "Tình Ngỡ Là Mơ"'), (3,'2005: Giải Mai Vàng do Báo Người Lao động Tổ chức'),
+(3,'2005-2006: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'), (3,'2006-2007: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'),
+(3,'1997-2007: Top 10 thành tựu Làn sóng xanh 10 năm'), (3,'2007-2008: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'),
+(3,'2009: Giải Video Music Xuất sắc Mai Vàng 08 - Mai Vàng'), (3,'2007: Nữ ca sĩ hát nhạc dân ca được yêu thích nhất tại Giải Mai Vàng'),
+(3,'2008: Nữ ca sĩ hát nhạc dân ca được yêu thích nhất tại Giải Mai Vàng'), (3,'2008: Kỷ lục Guinness Việt Nam với vở cải lương "Lan và Điệp"'),
+(3,'2009: Nữ ca sĩ hát nhạc dân ca được yêu thích nhất tại Giải Mai Vàng'), (3,'2009: Giải ca sĩ thể hiện thành công nhất Album Vàng tháng 12'),
+(3,'2009: Nữ nghệ sĩ thể hiện thành công nhất 2009 "Album Gió lên"'), (3,'2009: Nữ ca sĩ được yêu thích nhất 2009 "Album Em không thể quên"'),
+(3,'2009: Ca sĩ của năm "Giải thưởng Âm nhạc Cống hiến 2009"'), (3,'2009: Giải Nữ Nghệ sĩ xuất sắc nhất - Dấu Ấn Mai Vàng 15 năm'),
+(3,'2010: Nữ ca sĩ hát nhạc dân ca được yêu thích nhất tại Giải Mai Vàng'), (3,'2011-2012: Top ten ca sĩ được yêu thích nhất Làn Sóng Xanh'),
+(3,'2011: Giải nữ ca sĩ được yêu thích nhất HTV Awards'), (3,'2014: Top 5 ca sĩ xuất sắc nhất - Bảng GOLD Làn sóng Xanh'),
+(3,'2014: Ca khúc Hát cho người tình nhớ thu tác quyền âm nhạc nhiều nhất do Nhaccuatui.com bình chon'),
+(3,'2015: Bằng khen của Tổng Liên đoàn lao động Việt Nam'), (3,'2015: Ca sĩ có Video ca nhạc xem nhiều nhất - POP Awards 2015.'),
+(3,'2015: Top 5 ca sĩ xuất sắc nhất - Bảng GOLD Làn sóng Xanh'),
+
+-- 4: Chi Dân
+-- (Không có giải thưởng, bỏ qua nếu rỗng)
+
+-- 5: Erik
+-- (Không có giải thưởng, bỏ qua nếu rỗng)
+
+-- 14: Jang Mi
+-- (Không có giải thưởng, bỏ qua nếu rỗng)
+
+-- 15: Lam Trường
+(15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 1998'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 1999'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2000'),
+(15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2001'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2002'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2003'),
+(15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2004'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2005'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2006'),
+(15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2007'), (15,'Ca sĩ yêu thích nhất trên Làn sóng xanh - 2008'),
+(15,'Giải Mai Vàng - 1998'), (15,'Giải Mai Vàng - 1999'), (15,'Giải Mai Vàng - 2000'), (15,'Giải Mai Vàng - 2001'),
+(15,'Giải Mai Vàng - 2002'), (15,'Giải Mai Vàng - 2003'), (15,'Giải Mai Vàng - 2004'),
+
+-- 16: Lương Bích Hữu
+(16,'Giải nhất toàn quận với tiết mục "Cô gái Bích Lan Hương" năm 1996'),
+(16,'Giải Năm: Hội thi đơn ca tiếng Hoa lần XIII năm 2000'),
+(16,'Giải Ba: Hội diễn văn nghệ quần chúng chào mừng 70 năm ngày thành lập MTDTTN Việt Nam năm 2000'),
+(16,'Giải Nhất: Liên hoan tiếng hát truyền thống "Âm vang giai điệu hào hùng" năm 2002'),
+(16,'ZING ALBUM 2008: Album Vol.3 It''s not over - Chưa dừng lại'),
+(16,'Giải thưởng Zing Music Awards 2013 (do cộng đồng mạng bình chọn) hạng mục “Ca khúc mang âm hưởng dân ca được yêu thích nhất”: ca khúc chủ đề của album “Đứt từng đoạn ruột”'),
+(16,'Á quân Our song - Bài hát của chúng ta 2024'),
+
+-- 17: Lynk Lee
+(17,'Giải nhất Tiếng hát SV Viện ĐH Mở Hà Nội 2009, 2010'), (17,'Giải Nhất cuộc thi Khuấy động đam mê 2010'),
+(17,'Giải Nhất cuộc thi Honda BeUnik 11 2011'), (17,'Giải Nhất chung cuộc Gameshow My sound do Imuzik tổ chức năm 2011'),
+(17,'Lọt vào vóng bán kết Vietnam  Got Talent 2013'),
+
+-- 18: Minh Hằng
+(18,'Nữ diễn viên được yêu thích nhất HTV award 2008'), (18,'Nữ diễn viên được yêu thích nhất HTV award 2010'),
+(18,'Ca sĩ triển vọng tại Làn Sóng Xanh'), (18,'Top 10 ca sĩ của năm tại Mai Vàng 2011'),
+
+-- 19: Ngô Kiến Huy
+(19,'Ngô Kiến Huy từng đoạt giải khuyến khích gương mặt điện ảnh.'),
+(19,'Giải nhất cuộc thi “Vươn tới ngôi sao”.'),
+
+-- 20: Phương Thanh
+(20,'Suốt 10 năm liên tiếp cô đều có tên trên bảng xếp hạng Làn Sóng Xanh.'),
+(20,'Liên tiếp các năm cô đều có tên ở giải Mai Vàng.'),
+(20,'Giải Cánh diều vàng dành cho vai phụ xuất sắc.'),
+
+-- 21: Quang Lê
+(21,'Anh từng đoạt huy chương bạc trong một cuộc thi tài năng trẻ tổ chức tại California.')
+;
