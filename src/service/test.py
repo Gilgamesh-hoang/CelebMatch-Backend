@@ -11,7 +11,7 @@ from src.database.face_embedding_repository import get_embedding_by_id
 from src.model.ProbabilityResult import ProbabilityResult
 from src.service.classification_service import ClassificationService
 from src.service.face_service import FaceNetModel
-from src.service.preprocess_image_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingImageService
 
 
 def draw_bounding_boxes(image: np.ndarray, bboxes: np.ndarray, color: tuple = (0, 255, 0),
@@ -134,7 +134,7 @@ def detect():
 def test_classify():
     image = cv2.imread('C:\\Users\\FPT SHOP\\Pictures\\ghrth.jpg')
 
-    pre = PreprocessingService(face_number_per_img=10)
+    pre = PreprocessingImageService(face_number_per_img=10)
     facenet = FaceNetModel()
     classification = ClassificationService()
 
@@ -154,7 +154,7 @@ def compare_embeddings():
     # image = cv2.imread('C:\\Users\\FPT SHOP\\Pictures\\ghrth.jpg')
     image = cv2.imread('D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb\\1\\1671998465655418000.jpg')
 
-    pre = PreprocessingService(face_number_per_img=10)
+    pre = PreprocessingImageService(face_number_per_img=10)
     facenet = FaceNetModel()
 
     result = pre.pre_process_image([image])[0]

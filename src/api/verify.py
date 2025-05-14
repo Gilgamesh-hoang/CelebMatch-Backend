@@ -2,22 +2,18 @@ from typing import List
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Request
 from fastapi import HTTPException
 from scipy.spatial.distance import cosine
 
-from src.service.face_service import FaceNetModel
-from src.service.preprocess_image_service import PreprocessingService
-
 router = APIRouter()
-preprocessing_service = PreprocessingService()
-facenet_model = FaceNetModel()
 
 
-# endpoint này chấp nhận request POST với body là FormData có field "file" chứa File hình ảnh.
 @router.post("/verify")
-async def verify(files: List[UploadFile] = File(...)):
+async def verify(request: Request, files: List[UploadFile] = File(...)):
     THRESHOLD = 0.4
+    facenet_model = request.app.state.facenet_model
+    preprocess_image_service = request.app.state.preprocess_image_service
 
     # Kiểm tra số lượng file tải lên là 2
     if len(files) != 2:
@@ -35,7 +31,7 @@ async def verify(files: List[UploadFile] = File(...)):
         images.append(frame)
 
     # Xử lý ảnh để phát hiện khuôn mặt
-    results = preprocessing_service.pre_process_image(images)
+    results = preprocess_image_service.pre_process_image(images)
 
     # Kiểm tra mỗi ảnh có duy nhat một khuôn mặt
     if len(results) != 2 or len(results[0].faces) != 1 or len(results[1].faces) != 1:

@@ -14,6 +14,14 @@ def get_celebrity_by_id(celebrity_id: int) -> Optional[Celebrity]:
         FROM celebrities
         WHERE id = %s
     """
+
+    # old query
+    # query = """
+    #     SELECT id, full_name, occupation, nationality, birth_date, awards, songs,
+    #            residence, biography
+    #     FROM celebrities
+    #     WHERE id = %s
+    # """
     cursor.execute(query, (celebrity_id,))
     row = cursor.fetchone()
 
@@ -30,10 +38,16 @@ def get_celebrity_info(celebrity_id: int) -> Optional[dict]:
     cursor = connection.cursor()
 
     query = """
-      SELECT full_name, occupation, nationality, birth_date, residence, biography, awards, songs
+      SELECT full_name, occupation, nationality, birth_date, residence, biography
       FROM celebrities
       WHERE id = %s
     """
+    # old query
+    # query = """
+    #   SELECT full_name, occupation, nationality, birth_date, residence, biography, awards, songs
+    #   FROM celebrities
+    #   WHERE id = %s
+    # """
     cursor.execute(query, (celebrity_id,))
     row = cursor.fetchone()
 
@@ -48,7 +62,7 @@ def get_celebrity_info(celebrity_id: int) -> Optional[dict]:
             "birth_date": str(row[3]) if row[3] else None,
             "residence": row[4],
             "biography": row[5],
-            "awards": row[6],
-            "songs": row[7],
+            # "awards": row[6],
+            # "songs": row[7],
         }
     return None

@@ -11,7 +11,7 @@ from src.align.detect_face import detect_face, create_mtcnn
 from src.model.Preprocessed import PreprocessedObject
 
 
-class PreprocessingService:
+class PreprocessingImageService:
     """
     A service class for preprocessing images, including face detection, alignment, and resizing.
     """
@@ -40,6 +40,7 @@ class PreprocessingService:
             )
             with sess.as_default():
                 pnet, rnet, onet = create_mtcnn(sess, constant.DET_MODEL_DIR)  # Load MTCNN models.
+                print("Loading MTCNN models...")
                 return pnet, rnet, onet
 
     def pre_process_image(self, images_data: list[np.ndarray]) -> list[PreprocessedObject]:
