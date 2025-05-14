@@ -7,6 +7,12 @@ fastapi~=0.115.12
 scikit-learn~=1.6.1
 scipy~=1.15.2
 imageio~=2.37.0
-mysql-connector-python
-starlette~=0.46.2
+mysql-connector-python~=9.3.0
+starlette~=0.46.1
 python-multipart
+pillow~=11.2.1
+pydantic~=2.11.3
+pyvi~=0.1.1
+regex~=2024.11.6
+sentence-transformers~=4.1.0
+tf-keras~=2.19.0

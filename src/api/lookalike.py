@@ -13,7 +13,7 @@ from starlette.responses import JSONResponse
 from src.database.celebrity_repository import get_celebrity_info
 from src.database.face_embedding_repository import load_celebrity_embeddings
 from src.service.face_service import FaceNetModel
-from src.service.preprocessing_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingService
 
 router = APIRouter()
 preprocessing_service = PreprocessingService()

@@ -11,7 +11,7 @@ from src.database.face_embedding_repository import get_embedding_by_id
 from src.model.ProbabilityResult import ProbabilityResult
 from src.service.classification_service import ClassificationService
 from src.service.face_service import FaceNetModel
-from src.service.preprocessing_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingService
 
 
 def draw_bounding_boxes(image: np.ndarray, bboxes: np.ndarray, color: tuple = (0, 255, 0),
