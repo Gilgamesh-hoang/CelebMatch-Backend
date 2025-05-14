@@ -7,7 +7,7 @@ def get_all_awards() -> list[Award]:
     connection = get_connection()
     cursor = connection.cursor()
 
-    query = "SELECT user_id, award FROM awards"
+    query = "SELECT id,user_id, award FROM awards"
     cursor.execute(query)
     rows = cursor.fetchall()
 
@@ -16,20 +16,21 @@ def get_all_awards() -> list[Award]:
 
     awards = []
     for row in rows:
-        user_id, award = row
-        awards.append(Award.from_award(user_id=user_id, award=award))
+        id, user_id, award = row
+        awards.append(Award.from_award(id=id, user_id=user_id, award=award))
     return awards
 
-def save_award_embedding(user_id: int, embedding_bytes: bytes):
+
+def save_award_embedding(id: int, embedding_bytes: bytes):
     connection = get_connection()
     cursor = connection.cursor()
 
     try:
-        insert_query = "INSERT INTO awards (user_id, embedding) VALUES (%s, %s)"
-        cursor.execute(insert_query, (user_id, embedding_bytes))
+        insert_query = "update awards set embedding = %s where id = %s"
+        cursor.execute(insert_query, (embedding_bytes, id))
         connection.commit()
     except mysql.connector.Error as e:
-        print(f"Lỗi khi lưu vào database cho user_id {user_id}: {e}")
+        print(f"Lỗi khi lưu vào database cho id {id}: {e}")
 
     cursor.close()
     connection.close()

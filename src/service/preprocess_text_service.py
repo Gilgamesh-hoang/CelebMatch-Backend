@@ -1,6 +1,8 @@
-import regex as re
 import string
+
+import regex as re
 from pyvi.ViTokenizer import tokenize
+
 # Dictionary to store teen code mappings
 teen_code_dict = {}
 
