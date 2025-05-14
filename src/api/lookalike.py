@@ -5,23 +5,22 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 from PIL import Image
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.encoders import jsonable_encoder
 from scipy.spatial.distance import cosine
 from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_info
 from src.database.face_embedding_repository import load_celebrity_embeddings
-from src.service.face_service import FaceNetModel
-from src.service.preprocess_image_service import PreprocessingService
 
 router = APIRouter()
-preprocessing_service = PreprocessingService()
-facenet_model = FaceNetModel()
 
 
 @router.post("/lookalike")
-async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
+async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
+    facenet_model = request.app.state.facenet_model
+    preprocess_image_service = request.app.state.preprocess_image_service
+
     try:
         # Đọc file ảnh
         image_bytes: bytes = await upload_file.read()
@@ -31,7 +30,7 @@ async def lookalike(upload_file: UploadFile = File(...)) -> JSONResponse:
         celebrity_embeddings = load_celebrity_embeddings()
 
         # 1. Preprocess ảnh: detect và crop khuôn mặt
-        preprocessed_objects = preprocessing_service.pre_process_image([image_np])
+        preprocessed_objects = preprocess_image_service.pre_process_image([image_np])
 
         print("Preprocessed objects:")
 

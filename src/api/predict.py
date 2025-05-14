@@ -4,22 +4,21 @@ import traceback
 
 import numpy as np
 from PIL import Image
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_by_id
 from src.service.classification_service import ClassificationService
-from src.service.face_service import FaceNetModel
-from src.service.preprocess_image_service import PreprocessingService
 
 router = APIRouter()
-preprocessing_service = PreprocessingService()
-facenet_model = FaceNetModel()
 
 
 @router.post("/predict")
-async def predict(upload_file: UploadFile = File(...)) -> JSONResponse:
+async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
+    facenet_model = request.app.state.facenet_model
+    preprocess_image_service = request.app.state.preprocess_image_service
+
     try:
         # Đọc ảnh từ file upload
         image_bytes: bytes = await upload_file.read()
@@ -30,7 +29,7 @@ async def predict(upload_file: UploadFile = File(...)) -> JSONResponse:
         classification_service = ClassificationService()
 
         # Tiền xử lý ảnh, nhận diện khuôn mặt
-        preprocessed_objects = preprocessing_service.pre_process_image([image_np])
+        preprocessed_objects = preprocess_image_service.pre_process_image([image_np])
         result: list[dict] = []
 
         # Lấy đối tượng tiền xử lý đầu tiên (chỉ xét ảnh đầu tiên trong danh sách)

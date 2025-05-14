@@ -5,7 +5,7 @@ import numpy as np
 
 from src.database.face_embedding_repository import save
 from src.service.face_service import FaceNetModel
-from src.service.preprocess_image_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingImageService
 
 
 def create_dataset1(root_path: str, output_file: str):
@@ -18,7 +18,7 @@ def create_dataset1(root_path: str, output_file: str):
 
     """
     # Khởi tạo PreprocessingService
-    pre = PreprocessingService()
+    pre = PreprocessingImageService()
     faceNet = FaceNetModel()
 
     # Danh sách lưu dataset: [(embedding, label), ...]
@@ -103,7 +103,7 @@ def create_dataset1(root_path: str, output_file: str):
 
 
 def create_dataset2(root_path: str, output_npz: str):
-    pre = PreprocessingService()
+    pre = PreprocessingImageService()
     faceNet = FaceNetModel()
     dataset = []
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
@@ -166,7 +166,7 @@ def create_dataset2(root_path: str, output_npz: str):
 
 
 def insert_embeddings_to_database(root_path: str):
-    pre = PreprocessingService()
+    pre = PreprocessingImageService()
     faceNet = FaceNetModel()
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 
@@ -241,7 +241,7 @@ def load_dataset(file_path: str):
 
 
 def check_image(root_path: str):
-    pre = PreprocessingService()
+    pre = PreprocessingImageService()
     faceNet = FaceNetModel()
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
 

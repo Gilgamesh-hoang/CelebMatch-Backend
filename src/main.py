@@ -9,15 +9,24 @@ from starlette.middleware.cors import CORSMiddleware
 from api.predict import router as predict_router
 from api.verify import router as verify_router
 from api.lookalike import router as celebs_router
+from src.service.face_service import FaceNetModel
+from src.service.preprocess_image_service import PreprocessingImageService
+from starlette.datastructures import State
+
+from src.service.semantic_search_service import SematicSearchService
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import uvicorn
-app = FastAPI()
+# app = FastAPI()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan handler để load model khi ứng dụng khởi động."""
     print("Starting application...")
+    app.state: State
+    app.state.facenet_model = FaceNetModel()
+    app.state.preprocess_image_service = PreprocessingImageService(face_number_per_img=3)
+    app.state.sematic_search_service = SematicSearchService()
     yield  # Ứng dụng chạy tại đây
     print("Shutting down application...")
 
