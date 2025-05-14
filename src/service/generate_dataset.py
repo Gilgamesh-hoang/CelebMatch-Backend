@@ -5,7 +5,7 @@ import numpy as np
 
 from src.database.face_embedding_repository import save
 from src.service.face_service import FaceNetModel
-from src.service.preprocessing_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingService
 
 
 def create_dataset1(root_path: str, output_file: str):

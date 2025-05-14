@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from scipy.spatial.distance import cosine
 
 from src.service.face_service import FaceNetModel
-from src.service.preprocessing_service import PreprocessingService
+from src.service.preprocess_image_service import PreprocessingService
 
 router = APIRouter()
 preprocessing_service = PreprocessingService()
