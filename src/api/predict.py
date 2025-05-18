@@ -8,11 +8,13 @@ from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
-from src.database.celebrity_repository import get_celebrity_by_id
+from src.database.celebrity_repository import get_celebrity_info
 from src.service.classification_service import ClassificationService
 
 router = APIRouter()
 
+# Cấu hình ngưỡng dự đoán tối thiểu
+CONFIDENCE_THRESHOLD = 0.3
 
 @router.post("/predict")
 async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
@@ -35,21 +37,29 @@ async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSON
         # Lấy đối tượng tiền xử lý đầu tiên (chỉ xét ảnh đầu tiên trong danh sách)
         preprocessed_object = preprocessed_objects[0]
 
+        if not preprocessed_objects:
+            return JSONResponse(status_code=http.HTTPStatus.OK, content=result)
+
         # Nếu phát hiện khuôn mặt thì trích xuất embedding và phân loại
         if preprocessed_object is not None and preprocessed_object.faces is not None:
             embedding: np.ndarray = facenet_model.get_embeddings(preprocessed_object.faces)
             prediction_results = classification_service.predict(embedding)
 
-            # Duyệt qua từng kết quả phân loạic
+            # Duyệt qua từng kết quả phân loại
             for i, pred in enumerate(prediction_results):
+                bounding_boxes = preprocessed_object.bounding_boxes[i].tolist()
+
+                if bounding_boxes.pop() < CONFIDENCE_THRESHOLD:
+                    continue  # Bỏ qua khuôn mặt không đủ độ tin cậy
+
                 # Lấy thông tin người nổi tiếng từ ID
-                singer_info = get_celebrity_by_id(pred.class_id)
+                singer_info = get_celebrity_info(pred.class_id)
                 if singer_info is None:
                     continue
 
                 # Thêm kết quả vào danh sách trả về
                 result.append({
-                    "bounding_box": preprocessed_object.bounding_boxes[i].tolist()[:4],
+                    "bounding_box": bounding_boxes,
                     "singer": jsonable_encoder(singer_info),
                     "probability": pred.probability
                 })

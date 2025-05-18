@@ -61,29 +61,31 @@ async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JS
         embedding: np.ndarray = facenet_model.get_embeddings(face)
 
         # 3. Tính khoảng cách cosine đa luồng
-        def compute_distance(item):
+        def cosine_similarity(item):
             celeb_id, celeb_embedding = item
-            dist = cosine(embedding.flatten(), celeb_embedding.flatten())
-            return (celeb_id, float(dist))  # Ép float luôn tại đây
+            similarity = float(np.dot(embedding.flatten(), celeb_embedding.flatten()) /
+                        (np.linalg.norm(embedding.flatten()) * np.linalg.norm(celeb_embedding.flatten())))
+            return (celeb_id, similarity)
+
 
         with ThreadPoolExecutor() as executor:
-            distances = list(executor.map(compute_distance, celebrity_embeddings.items()))
+            similarities = list(executor.map(cosine_similarity, celebrity_embeddings.items()))
 
-        print("Distances:")
+        print("Similarities:")
         # 4. Tìm 2 người nổi tiếng giống nhất
-        top_matches = sorted(distances, key=lambda x: x[1])[:2]
+        top_matches = sorted(similarities, key=lambda x: x[1])[:2]
 
         results = []
-        for celeb_id, dist in top_matches:
+        for celeb_id, similarity in top_matches:
             celeb_info = get_celebrity_info(celeb_id)
             if celeb_info is None:
                 continue
 
-            similarity = (1 - dist) * 100
+            # similarity = (1 - dist) * 100
 
             results.append({
                 "singer": jsonable_encoder(celeb_info),
-                "similarity": round(float(similarity), 2)
+                "similarity": round((similarity * 100), 2)
             })
 
         return JSONResponse(status_code=http.HTTPStatus.OK, content=results)
