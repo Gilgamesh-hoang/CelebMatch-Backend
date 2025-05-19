@@ -50,9 +50,13 @@ async def verify(request: Request, files: List[UploadFile] = File(...)):
 
     # Tính khoảng cách cosine giữa hai embedding
     similarity_score = cosine(emb1, emb2)
-    similarity_score = similarity_score.item()  # Chuyển numpy.float64 thành float chuẩn
+    similarity_score = similarity_score.item()
+
+    similarity_percent = round((1- similarity_score) * 100, 2)
+
     is_same_person = bool(similarity_score < THRESHOLD)
     return {
         "is_same_person": is_same_person,
-        "similarity_score": similarity_score
+        "similarity_score": similarity_score,
+        "similarity_percentage": similarity_percent
     }

@@ -13,11 +13,9 @@ from src.service.classification_service import ClassificationService
 
 router = APIRouter()
 
-# Cấu hình ngưỡng dự đoán tối thiểu
-CONFIDENCE_THRESHOLD = 0.3
-
 @router.post("/predict")
 async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
+    THRESHOLD = 0.3
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
 
@@ -49,7 +47,7 @@ async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSON
             for i, pred in enumerate(prediction_results):
                 bounding_boxes = preprocessed_object.bounding_boxes[i].tolist()
 
-                if bounding_boxes.pop() < CONFIDENCE_THRESHOLD:
+                if pred.probability < THRESHOLD:
                     continue  # Bỏ qua khuôn mặt không đủ độ tin cậy
 
                 # Lấy thông tin người nổi tiếng từ ID
@@ -59,7 +57,7 @@ async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSON
 
                 # Thêm kết quả vào danh sách trả về
                 result.append({
-                    "bounding_box": bounding_boxes,
+                    "bounding_box": bounding_boxes[i].tolist()[:4],
                     "singer": jsonable_encoder(singer_info),
                     "probability": pred.probability
                 })

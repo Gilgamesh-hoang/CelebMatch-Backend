@@ -7,11 +7,11 @@ import numpy as np
 from PIL import Image
 from fastapi import APIRouter, UploadFile, File, Request
 from fastapi.encoders import jsonable_encoder
-from scipy.spatial.distance import cosine
 from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_info
 from src.database.face_embedding_repository import load_celebrity_embeddings
+from sklearn.metrics.pairwise import cosine_similarity
 
 router = APIRouter()
 
@@ -61,15 +61,14 @@ async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JS
         embedding: np.ndarray = facenet_model.get_embeddings(face)
 
         # 3. Tính khoảng cách cosine đa luồng
-        def cosine_similarity(item):
+        def cosine_sim(item):
             celeb_id, celeb_embedding = item
-            similarity = float(np.dot(embedding.flatten(), celeb_embedding.flatten()) /
-                        (np.linalg.norm(embedding.flatten()) * np.linalg.norm(celeb_embedding.flatten())))
+            similarity =  cosine_similarity(embedding.reshape(1, -1), celeb_embedding.reshape(1, -1))[0][0]
             return (celeb_id, similarity)
 
 
         with ThreadPoolExecutor() as executor:
-            similarities = list(executor.map(cosine_similarity, celebrity_embeddings.items()))
+            similarities = list(executor.map(cosine_sim, celebrity_embeddings.items()))
 
         print("Similarities:")
         # 4. Tìm 2 người nổi tiếng giống nhất
