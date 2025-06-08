@@ -27,9 +27,13 @@ Content-Type: application/json
 {
   "gender": "MALE",
   "songs": [
-    "Giải thưởng Làn Sóng Xanh - Ca khúc của năm 2022: Đoạt giải (See tình)",
-    "Giải thưởng Mai Vàng - Ca khúc được yêu thích nhất 2019: Đoạt giải (Để Mị nói cho mà nghe)"
+    "Cảm ơn cha",
+    "Aloha",
+    "Bụi phấn"
   ],
-  "awards": []
+  "awards": [
+        "Giải thưởng Làn Sóng Xanh - Ca khúc của năm 2022: Đoạt giải (See tình)",
+    "Giải thưởng Mai Vàng - Ca khúc được yêu thích nhất 2019: Đoạt giải (Để Mị nói cho mà nghe)"
+  ]
 }
 

@@ -1,7 +1,7 @@
 version: '3.8'
 services:
-  mysql:
-    container_name: mysql
+  mysql_celeb_match:
+    container_name: mysql_celeb_match
     image: 'mysql:8.0.19'
     ports:
       - '3306:3306'

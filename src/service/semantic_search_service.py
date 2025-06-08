@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import date, datetime
 from typing import Optional, List
 
 import numpy as np
@@ -8,6 +9,7 @@ from sentence_transformers import SentenceTransformer
 from src.database.award_repository import get_all_awards, get_all_awards_emb
 from src.database.bio_embedding_repository import get_all_bio_emb
 from src.database.celebrity_repository import get_celebrity_info
+from src.database.face_embedding_repository import get_embedding_by_id
 from src.database.song_repository import get_all_songs, get_all_song_emb
 from src.service.preprocess_text_service import preprocess_sentence
 
@@ -126,5 +128,7 @@ class SematicSearchService:
         arr_result = [];
         for celeb in top_celebs:
             celeb_info = get_celebrity_info(celeb[0])
+            image = get_embedding_by_id(celeb_info['id']).img_url
+            celeb_info["image"] = image
             arr_result.append(celeb_info)
         return arr_result
