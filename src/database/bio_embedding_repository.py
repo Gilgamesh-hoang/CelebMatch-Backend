@@ -31,7 +31,7 @@ def get_all_bio_emb() -> list[BioEmbedding]:
 
     embeddings = []
     for row in rows:
-        id, user_id, embedding_bytes = row
+        user_id, embedding_bytes = row
         embedding_array = np.frombuffer(embedding_bytes, dtype=np.float32)
         embeddings.append(BioEmbedding(user_id=user_id, embedding=embedding_array))
 

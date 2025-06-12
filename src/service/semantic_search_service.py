@@ -1,16 +1,15 @@
 from collections import defaultdict
-from datetime import date, datetime
 from typing import Optional, List
 
 import numpy as np
 from scipy.spatial.distance import cosine
 from sentence_transformers import SentenceTransformer
 
-from src.database.award_repository import get_all_awards, get_all_awards_emb
+from src.database.award_repository import get_all_awards_emb
 from src.database.bio_embedding_repository import get_all_bio_emb
 from src.database.celebrity_repository import get_celebrity_info
 from src.database.face_embedding_repository import get_embedding_by_id
-from src.database.song_repository import get_all_songs, get_all_song_emb
+from src.database.song_repository import get_all_song_emb
 from src.service.preprocess_text_service import preprocess_sentence
 
 
@@ -37,95 +36,84 @@ class SematicSearchService:
         embeddings = self.model.encode(sentences, normalize_embeddings=True)
         return embeddings
 
-    def format_celeb_response(self, rows):
-        if not rows:
-            return {}
+    def search(self, songs: Optional[List[str]], awards: Optional[List[str]], bio: Optional[str]):
+        # Sửa ở đây: Nhóm embedding theo singer_id thay vì tính từng embedding riêng lẻ
+        song_embeddings = defaultdict(list)
+        for vector_song in get_all_song_emb():
+            song_embeddings[vector_song.user_id].append(vector_song.embedding)
 
-        first_row = rows[0]
+        award_embeddings = defaultdict(list)
+        for vector_award in get_all_awards_emb():
+            award_embeddings[vector_award.user_id].append(vector_award.embedding)
 
-        response = {
-            "id": first_row[0],
-            "full_name": first_row[1],
-            "occupation": first_row[2],
-            "nationality": first_row[3],
-            "birth_date": str(first_row[4]),
-            "residence": first_row[5],
-            "biography": first_row[6],
-            "awards": [],
-            "songs": []
-        }
+        bio_embeddings = {}
+        for vector_bio in get_all_bio_emb():
+            bio_embeddings[vector_bio.user_id] = vector_bio.embedding
 
-        awards_set = set()
-        songs_set = set()
-
-        for row in rows:
-            award = row[7].award
-            song = row[8].song
-            if award:
-                awards_set.add(award)
-            if song:
-                songs_set.add(song)
-
-        response["awards"] = list(awards_set)
-        response["songs"] = list(songs_set)
-
-        return response
-
-    def search(self, songs: Optional[List[str]], awards: Optional[List[str]], bio: Optional[List[str]]):
-        results = {}
-
-        # Đối với từng field, Tính khoảng cách cosin giữa vector query và tất cả các vector trong bảng tương ứng
-        singer_similarities = defaultdict(list)  # key: singer_id, value: list of similarity scores
-
-        # Đối với từng field, thực hiện tiền xử lý
+        # Tiền xử lý các truy vấn
+        song_queries_emb = []
         if songs:
-            # Truy xuất các vector đã được lưu trữ trước trong database
-            vectors_songs = get_all_song_emb()
-            songs_arr = []
-            for song in songs:
-                # Sử dụng model để chuyển đổi dữ liệu thành vector
-                processed = preprocess_sentence(song)
-                songs_arr.append(processed)
+            song_queries = [preprocess_sentence(song) for song in songs]
+            song_queries_emb = self.get_embeddings(song_queries)
 
-            for query_vector in self.get_embeddings(songs_arr):
-                for vector_song in vectors_songs:
-                    similarity = cosine(query_vector, vector_song.embedding)
-                    # Nhóm các kết quả theo id của ca sĩ
-                    singer_similarities[vector_song.user_id].append(similarity)
-
+        award_queries_emb = []
         if awards:
-            vectors_awards = get_all_awards_emb()
-            awards_arr = []
-            for award in awards:
-                processed = preprocess_sentence(award)
-                awards_arr.append(processed)
+            award_queries = [preprocess_sentence(award) for award in awards]
+            award_queries_emb = self.get_embeddings(award_queries)
 
-            for query_vector in self.get_embeddings(awards_arr):
-                for vector_award in vectors_awards:
-                    similarity = cosine(query_vector, vector_award.embedding)
-                    singer_similarities[vector_award.user_id].append(similarity)
-
+        bio_query_emb = None
         if bio:
-            bio = bio
-            vectors_bios = get_all_bio_emb()
-            for query_vector in self.get_embeddings(preprocess_sentence(bio)):
-                for vector_bio in vectors_bios:
-                    similarity = cosine(query_vector, vector_bio.embedding)
-                    singer_similarities[vector_bio.user_id].append(similarity)
+            bio_query = preprocess_sentence(bio)
+            bio_query_emb = self.get_embeddings([bio_query])[0]
 
-        # Tính trung bình cosine similarity cho mỗi singer_id
-        average_similarities = {}
-        for singer_id, scores in singer_similarities.items():
-            average = sum(scores) / len(scores)
-            average_similarities[singer_id] = average
+        # Sửa ở đây: Tính khoảng cách thay vì tổng tất cả các similarity
+        singer_distances = defaultdict(float)
+
+        # Lấy tất cả các singer_id từ các embedding
+        all_singer_ids = set(song_embeddings.keys()) | set(award_embeddings.keys()) | set(bio_embeddings.keys())
+
+        for singer_id in all_singer_ids:
+            total_distance = 0.0
+
+            # Sửa ở đây: Tính song_distance bằng cách lấy trung bình của các khoảng cách nhỏ nhất
+            if songs:
+                if singer_id in song_embeddings:
+                    min_dists = []
+                    for query_emb in song_queries_emb:
+                        min_dist = min(cosine(query_emb, song_emb) for song_emb in song_embeddings[singer_id])
+                        min_dists.append(min_dist)
+                    song_distance = sum(min_dists) / len(min_dists)
+                else:
+                    song_distance = 1.0  # Giá trị mặc định nếu không có embedding
+                total_distance += song_distance
+
+            # Sửa ở đây: Tính award_distance tương tự như songs
+            if awards:
+                if singer_id in award_embeddings:
+                    min_dists = []
+                    for query_emb in award_queries_emb:
+                        min_dist = min(cosine(query_emb, award_emb) for award_emb in award_embeddings[singer_id])
+                        min_dists.append(min_dist)
+                    award_distance = sum(min_dists) / len(min_dists)
+                else:
+                    award_distance = 1.0  # Giá trị mặc định nếu không có embedding
+                total_distance += award_distance
+
+            # Sửa ở đây: Tính bio_distance trực tiếp
+            if bio:
+                if singer_id in bio_embeddings:
+                    bio_distance = cosine(bio_query_emb, bio_embeddings[singer_id])
+                else:
+                    bio_distance = 1.0  # Giá trị mặc định nếu không có embedding
+                total_distance += bio_distance
+
+            singer_distances[singer_id] = total_distance
 
         # Sắp xếp và lấy top N kết quả
         top_n = 3
-        top_celebs = sorted(
-            average_similarities.items(), key=lambda item: item[1], reverse=True
-        )[:top_n]
+        top_celebs = sorted(singer_distances.items(), key=lambda item: item[1])[:top_n]
 
-        arr_result = [];
+        arr_result = []
         for celeb in top_celebs:
             celeb_info = get_celebrity_info(celeb[0])
             image = get_embedding_by_id(celeb_info['id']).img_url

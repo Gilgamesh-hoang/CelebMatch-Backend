@@ -19,21 +19,3 @@ Content-Type: image/jpeg
 
 < test/test_celeb1.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
-
-### Test search API
-POST http://127.0.0.1:8000/search
-Content-Type: application/json
-
-{
-  "gender": "MALE",
-  "songs": [
-    "Cảm ơn cha",
-    "Aloha",
-    "Bụi phấn"
-  ],
-  "awards": [
-        "Giải thưởng Làn Sóng Xanh - Ca khúc của năm 2022: Đoạt giải (See tình)",
-    "Giải thưởng Mai Vàng - Ca khúc được yêu thích nhất 2019: Đoạt giải (Để Mị nói cho mà nghe)"
-  ]
-}
-
