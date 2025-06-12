@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from api.predict import router as predict_router
+from api.search import router as search_router
 from api.verify import router as verify_router
 from api.lookalike import router as celebs_router
 from src.service.face_service import FaceNetModel
@@ -41,6 +42,7 @@ app.add_middleware(
 app.include_router(predict_router)
 app.include_router(verify_router)
 app.include_router(celebs_router)
+app.include_router(search_router)
 
 if __name__ == "__main__":
     # port = int(os.getenv("PORT", 8111))  # Lấy port từ biến môi trường hoặc dùng 8000 mặc định

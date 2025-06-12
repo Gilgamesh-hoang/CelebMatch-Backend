@@ -1,7 +1,27 @@
+import numpy as np
+
 from src.database.db_setting import get_connection
 from src.model.Song import Song
 import mysql.connector
 
+def get_all_song_emb():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT id, user_id, embedding FROM songs"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    songs = []
+    for row in rows:
+        id, user_id, embedding_bytes = row
+        # Deserialize embedding to np.ndarray
+        embedding = np.frombuffer(embedding_bytes, dtype=np.float32)
+        songs.append(Song.from_embedding(user_id=user_id, id=id, embedding=embedding, ))
+    return songs
 
 def get_all_songs() -> list[Song]:
     connection = get_connection()

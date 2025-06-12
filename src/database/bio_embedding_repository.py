@@ -18,6 +18,25 @@ def save(user_id: int, embedding_bytes: bytes):
     cursor.close()
     connection.close()
 
+def get_all_bio_emb() -> list[BioEmbedding]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT user_id, embedding FROM bio_embeddings"
+    cursor.execute(query)
+    rows = cursor.fetchall()  # Đọc hết tất cả kết quả để tránh lỗi Unread result
+
+    cursor.close()
+    connection.close()
+
+    embeddings = []
+    for row in rows:
+        user_id, embedding_bytes = row
+        embedding_array = np.frombuffer(embedding_bytes, dtype=np.float32)
+        embeddings.append(BioEmbedding(user_id=user_id, embedding=embedding_array))
+
+    return embeddings
+
 def get_by_user_id(user_id: int) -> BioEmbedding | None:
     connection = get_connection()
     cursor = connection.cursor()

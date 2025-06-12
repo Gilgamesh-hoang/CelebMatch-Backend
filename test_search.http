@@ -1,0 +1,144 @@
+### Test search API / Bích Phương (user_id: 1) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Gửi Anh Xa Nhớ",
+    "Tết Nhẹ Nhàng",
+    "Rằng Em Mãi Ở Bên"
+  ],
+  "awards": [
+    "2010: Top 7 chương trình Việt Nam Idol",
+    "2013: Giải Ca sĩ triển vọng do Yan Vpop 20 Awards Bình chọn."
+  ],
+  "bio": "Ca sĩ Bích Phương là ai? Bích Phương là một ca sĩ trẻ thành danh từ chương trình Việt Nam Idol. Năm 2008 cô tham gia chương trình Việt Nam Idol"
+}
+
+### Test search API / Cẩm Ly (user_id: 3) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Hai Lối Mộng",
+    "Người Tình Quê - Ft Quốc Đại",
+    "Nhớ Nhau Hoài (Tuyệt Phẩm Trữ Tình) - Ft Quốc Đại"
+  ],
+  "awards": [
+    "2001-2002: Top ten Làn Sóng Xanh",
+    "2002: Giải Mai Vàng do Báo Người Lao động tổ chức"
+  ],
+  "bio": "Cẩm Ly tên đầy đủ là Trần Cẩm Ly, là một trong những ngôi sao ca nhạc của làng âm nhạc Việt Nam. Cô còn là một nhân vật truyền hình được công chúng yêu mến"
+}
+
+### Test search API / Hari Won (user_id: 6) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Hương đêm bay xa",
+    "Cảm ơn cha",
+    "Aloha"
+  ],
+  "awards": [
+    "Giải thưởng Cánh Diều Vàng - Nữ diễn viên xuất sắc của năm 2013: Đề cử (Thần tượng)",
+    "Giải thưởng Làn Sóng Xanh - Ca khúc của năm 2022: Đoạt giải (See tình)"
+  ],
+  "bio": "Hari Won có tên thật Lưu E..."
+}
+
+### Test search API / Erik (user_id: 5) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Sau tất cả",
+    "Chạm đáy nỗi đau",
+    "Yêu và yêu"
+  ],
+  "awards": [],
+  "bio": "Erik được biết đến là ca sĩ tài năng. Ngoài ca hát, anh còn có thể nhảy và sáng tác nhạc. Erik là cựu thành viên (giọng hát chính) của nhóm nhạc Monstar"
+}
+
+### Test search API /Hari Won (user_id: 6) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [],
+  "awards": [
+    "Giải thưởng Làn Sóng Xanh - Ca khúc của năm 2022: Đoạt giải (See tình)",
+    "Giải thưởng Mai Vàng - Ca khúc được yêu thích nhất 2019: Đoạt giải (Để Mị nói cho mà nghe)"
+  ],
+  "bio": ""
+}
+
+### Test search API / Chi Dân (user_id: 4) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Mất Trí Nhớ",
+    "Giả Vờ Nhưng Anh Yêu Em"
+  ],
+  "awards": [],
+  "bio": "Nguyễn Trung Hiếu là một nam ca sĩ trẻ nổi tiếng người Việt Nam."
+}
+
+### Test search API / Bích Phương (user_id: 1) và Cẩm Ly (user_id: 3) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Gửi Anh Xa Nhớ",
+    "Hai Lối Mộng"
+  ],
+  "awards": [],
+  "bio": ""
+}
+
+### Test search API / Bích Phương (user_id: 1) incorrect data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [],
+  "awards": [],
+  "bio": "Ca sĩ trẻ thành danh từ chương trình Việt Nam Idol"
+}
+
+### Test search API / Văn Mai Hương (user_id: 29) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Nếu Như Anh Đến",
+    "Chuyện Tình Nhà Thơ"
+  ],
+  "awards": [
+    "Giải Nữ ca sĩ được yêu thích nhất - HTV Awards lần thứ 8 năm 2014"
+  ],
+  "bio": "Văn Mai Hương là một ca sĩ trẻ đầy tài năng của làng âm nhạc Việt Nam. Cô bắt đầu nổi tiếng sau khi giành danh hiệu Á Quân tại cuộc thi tìm kiếm tài năng âm nhạc"
+}
+
+### Test search API / Đàm Vĩnh Hưng (user_id: 30) correct data
+POST http://127.0.0.1:8000/search
+Content-Type: application/json
+
+{
+  "songs": [
+    "Dạ khúc cho tình nhân 7 - Chờ đông",
+    "Anh còn nợ em"
+  ],
+  "awards": [
+    "2007: Giải Cống hiến - Ca sĩ xuất sắc nhất 2007",
+    "2005: Giải Lá Phong của Tổng lãnh sự Canada"
+  ],
+  "bio": "Đàm Vĩnh Hưng tên thật là Huỳnh Minh Hưng, được biết đến với nghệ danh Mr Đàm, là một nam ca sĩ nổi tiếng của làng giải trí Việt. Anh được xem là Ông hoàng nhạc Việt"
+}
