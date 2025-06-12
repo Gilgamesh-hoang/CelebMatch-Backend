@@ -15,7 +15,6 @@ router = APIRouter()
 
 @router.post("/predict")
 async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
-    THRESHOLD = 0.3
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
 
@@ -47,17 +46,15 @@ async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSON
             for i, pred in enumerate(prediction_results):
                 bounding_boxes = preprocessed_object.bounding_boxes[i].tolist()
 
-                if pred.probability < THRESHOLD:
-                    continue  # Bỏ qua khuôn mặt không đủ độ tin cậy
-
                 # Lấy thông tin người nổi tiếng từ ID
                 singer_info = get_celebrity_info(pred.class_id)
                 if singer_info is None:
+                    print(f"Không tìm thấy thông tin người nổi tiếng cho ID: {pred.class_id}")
                     continue
 
                 # Thêm kết quả vào danh sách trả về
                 result.append({
-                    "bounding_box": bounding_boxes[i].tolist()[:4],
+                    "bounding_box": bounding_boxes[:4],
                     "singer": jsonable_encoder(singer_info),
                     "probability": pred.probability
                 })

@@ -3,6 +3,8 @@ import os
 import cv2
 import numpy as np
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List
 from src.database.face_embedding_repository import save
 from src.service.face_service import FaceNetModel
 from src.service.preprocess_image_service import PreprocessingImageService
@@ -240,44 +242,82 @@ def load_dataset(file_path: str):
     print(f"Unique labels: {np.unique(labels)}")
 
 
-def check_image(root_path: str):
+def process_directory(dir_path: str, pre, faceNet, supported_extensions: tuple) -> List[str]:
+    print(f"Xử lý thư mục: {dir_path} (Label: {dir_path})")
+    failed_files = []
+
+    for file_name in os.listdir(dir_path):
+        if not file_name.lower().endswith(supported_extensions):
+            continue
+
+        image_path = os.path.join(dir_path, file_name)
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Không thể đọc ảnh: {image_path}")
+            failed_files.append(image_path)
+            continue
+
+        results = pre.pre_process_image([image])
+        if not results:
+            print(f"Không tìm thấy khuôn mặt trong ảnh: {image_path}")
+            failed_files.append(image_path)
+            continue
+
+        result = results[0]
+        if result.faces is None or not result.faces:
+            print(f"Không có khuôn mặt được cắt từ ảnh: {image_path}")
+            failed_files.append(image_path)
+            continue
+
+        embeddings = faceNet.get_embeddings(result.faces)
+        if len(embeddings) == 0:
+            print(f"Không lấy được embeddings từ ảnh: {image_path}")
+            failed_files.append(image_path)
+            continue
+
+        if len(embeddings) > 1:
+            print(f"Tìm thấy nhiều khuôn mặt trong ảnh: {image_path}")
+            failed_files.append(image_path)
+
+    return failed_files
+
+
+def check_image_v2(root_path: str):
     pre = PreprocessingImageService()
     faceNet = FaceNetModel()
     supported_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
+    all_failed_files = []
 
-    for dir_name in sorted(os.listdir(root_path)):
-        sub_dir_path = os.path.join(root_path, dir_name)
-        if not os.path.isdir(sub_dir_path):
-            print(f"Bỏ qua vì không phải thư mục: {sub_dir_path}")
-            continue
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for dir_name in sorted(os.listdir(root_path)):
+            sub_dir_path = os.path.join(root_path, dir_name)
+            if not os.path.isdir(sub_dir_path):
+                print(f"Bỏ qua vì không phải thư mục: {sub_dir_path}")
+                print("-----------------------")
+                continue
+            # Submit mỗi thư mục vào thread pool
+            futures.append(executor.submit(process_directory, sub_dir_path, pre, faceNet, supported_extensions))
 
-        print(f"Xử lý thư mục: {sub_dir_path} (Label: {sub_dir_path})")
-        for file_name in os.listdir(sub_dir_path):
-            if file_name.lower().endswith(supported_extensions):
-                image_path = os.path.join(sub_dir_path, file_name)
-                image = cv2.imread(image_path)
-                if image is None:
-                    print(f"Không thể đọc ảnh: {image_path}")
-                    continue
+        for future in as_completed(futures):
+            failed_files = future.result()
+            all_failed_files.extend(failed_files)
 
-                results = pre.pre_process_image([image])
-                if not results:
-                    print(f"Không tìm thấy khuôn mặt trong ảnh: {image_path}")
-                    continue
+    print('-----------------------')
+    for file in all_failed_files:
+        try:
+            os.remove(file)
+            print(f"Đã xóa tệp: {file}")
+        except Exception as e:
+            print(f"Lỗi khi xóa tệp {file}: {e}")
+    print('len:', len(all_failed_files))
 
-                result = results[0]
-                if result.faces is None or not result.faces:
-                    print(f"Không có khuôn mặt được cắt từ ảnh: {image_path}")
-                    continue
-
-                # Lấy embeddings và kiểm tra độ dài
-                embeddings = faceNet.get_embeddings(result.faces)
-                if len(embeddings) == 0:  # Sửa lỗi ở đây
-                    print(f"Không lấy được embeddings từ ảnh: {image_path}")
-                    continue
-
-                if len(embeddings) > 1:
-                    print(f"Tìm thấy nhiều khuôn mặt trong ảnh: {image_path}, chỉ lấy khuôn mặt đầu tiên.")
-
-
-check_image("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\train")
+create_dataset2("D:\\Download\\Vietnamese-Celebrity-Face\\dataset-v2\\train",
+                "E:\\CelebMatch\\Dataset\\train.npz")
+print("==========================")
+create_dataset2("D:\\Download\\Vietnamese-Celebrity-Face\\dataset-v2\\test",
+                "E:\\CelebMatch\\Dataset\\test.npz")
+print("==========================")
+load_dataset("E:\\CelebMatch\\Dataset\\train.npz")
+print("==========================")
+load_dataset("E:\\CelebMatch\\Dataset\\test.npz")
