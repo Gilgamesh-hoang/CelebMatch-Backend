@@ -9,24 +9,20 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_info
-from src.service.classification_service import ClassificationService
 
 router = APIRouter()
 
 @router.post("/predict")
 async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
-    THRESHOLD = 0.3
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
+    classification_service = request.app.state.classification_service
 
     try:
         # Đọc ảnh từ file upload
         image_bytes: bytes = await upload_file.read()
         image: Image.Image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         image_np: np.ndarray = np.array(image)
-
-        # Khởi tạo các service và model
-        classification_service = ClassificationService()
 
         # Tiền xử lý ảnh, nhận diện khuôn mặt
         preprocessed_objects = preprocess_image_service.pre_process_image([image_np])
@@ -47,17 +43,15 @@ async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSON
             for i, pred in enumerate(prediction_results):
                 bounding_boxes = preprocessed_object.bounding_boxes[i].tolist()
 
-                if pred.probability < THRESHOLD:
-                    continue  # Bỏ qua khuôn mặt không đủ độ tin cậy
-
                 # Lấy thông tin người nổi tiếng từ ID
                 singer_info = get_celebrity_info(pred.class_id)
                 if singer_info is None:
+                    print(f"Không tìm thấy thông tin người nổi tiếng cho ID: {pred.class_id}")
                     continue
 
                 # Thêm kết quả vào danh sách trả về
                 result.append({
-                    "bounding_box": bounding_boxes[i].tolist()[:4],
+                    "bounding_box": bounding_boxes[:4],
                     "singer": jsonable_encoder(singer_info),
                     "probability": pred.probability
                 })

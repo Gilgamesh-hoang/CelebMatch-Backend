@@ -10,7 +10,7 @@ DET_MODEL_DIR = os.path.join(BASE_DIR, 'src', 'align')
 
 FACENET_MODEL_PATH = os.path.join(BASE_DIR, 'Models', '20180402-114759.pb')
 
-CLASSIFICATION_MODEL_PATH = os.path.join(BASE_DIR, 'Models', 'svm_model.pkl')
+CLASSIFICATION_MODEL_PATH = os.path.join(BASE_DIR, 'Models', 'rf_model.pkl')
 
 MINSIZE = 20  # Minimum size of the face
 

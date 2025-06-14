@@ -193,15 +193,7 @@ def compare_embeddings():
     })
 
 
-# compare_embeddings()
 # detect()
-
-# count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset\\database-emb")
-
-#
-# if result.bounding_boxes is not None:
-#     # Vẽ bounding_boxes lên ảnh gốc
-#     image_with_boxes = draw_bounding_boxes(image, result.bounding_boxes, color=(0, 255, 0))
-#     # Tùy chọn: Hiển thị ảnh
-#     output_path = f"image_with_boxes.jpg"
-#     cv2.imwrite(output_path, image_with_boxes)
+count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset-v2\\train")
+print('-----------------------')
+count_files_in_subdirectories("D:\\Download\\Vietnamese-Celebrity-Face\\dataset-v2\\test")

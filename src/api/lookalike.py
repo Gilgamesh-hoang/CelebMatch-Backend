@@ -5,9 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 from PIL import Image
-from fastapi import APIRouter, UploadFile, File, Request
+from fastapi import APIRouter, UploadFile, File, Request, HTTPException
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_info
 from src.database.face_embedding_repository import load_celebrity_embeddings
@@ -17,7 +16,7 @@ router = APIRouter()
 
 
 @router.post("/lookalike")
-async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
+async def lookalike(request: Request, upload_file: UploadFile = File(...)):
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
 
@@ -32,29 +31,19 @@ async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JS
         # 1. Preprocess ảnh: detect và crop khuôn mặt
         preprocessed_objects = preprocess_image_service.pre_process_image([image_np])
 
-        print("Preprocessed objects:")
-
-        if not preprocessed_objects:
-            return JSONResponse(
-                status_code=http.HTTPStatus.BAD_REQUEST,
-                content={"message": "No face detected."}
+        if not preprocessed_objects or preprocessed_objects[0].faces is None:
+            raise HTTPException(
+                status_code=404,
+                detail={"message": "No face detected."}
             )
 
         preprocessed_object = preprocessed_objects[0]
-
-        if preprocessed_object.faces is None:
-            return JSONResponse(
-                status_code=http.HTTPStatus.BAD_REQUEST,
-                content={"message": "No face detected."}
-            )
-
         face = preprocessed_object.faces
-        print(f"Detected faces: {len(face)}")
 
         if len(face) > 1:
-            return JSONResponse(
-                status_code=http.HTTPStatus.BAD_REQUEST,
-                content={"message": "Multiple faces detected. Please upload an image with only one face."}
+            raise HTTPException(
+                status_code=400,
+                detail={"message": "Multiple faces detected. Please upload an image with only one face."}
             )
 
         # 2. Trích xuất embedding của khuôn mặt
@@ -63,16 +52,14 @@ async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JS
         # 3. Tính khoảng cách cosine đa luồng
         def cosine_sim(item):
             celeb_id, celeb_embedding = item
-            similarity =  cosine_similarity(embedding.reshape(1, -1), celeb_embedding.reshape(1, -1))[0][0]
+            similarity = cosine_similarity(embedding.reshape(1, -1), celeb_embedding.reshape(1, -1))[0][0]
             return (celeb_id, similarity)
-
 
         with ThreadPoolExecutor() as executor:
             similarities = list(executor.map(cosine_sim, celebrity_embeddings.items()))
 
-        print("Similarities:")
-        # 4. Tìm 2 người nổi tiếng giống nhất
-        top_matches = sorted(similarities, key=lambda x: x[1])[:2]
+        # 4. Tìm 1 người nổi tiếng giống nhất
+        top_matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:1]
 
         results = []
         for celeb_id, similarity in top_matches:
@@ -80,18 +67,20 @@ async def lookalike(request: Request, upload_file: UploadFile = File(...)) -> JS
             if celeb_info is None:
                 continue
 
-            # similarity = (1 - dist) * 100
+            similarity_float = float(similarity)
+            if similarity_float < 0:
+                similarity_float = 0.0
 
             results.append({
                 "singer": jsonable_encoder(celeb_info),
-                "similarity": round((similarity * 100), 2)
+                "similarity": similarity_float
             })
 
-        return JSONResponse(status_code=http.HTTPStatus.OK, content=results)
+        return results
 
     except Exception as e:
         traceback.print_exc()
-        return JSONResponse(
-            status_code=http.HTTPStatus.INTERNAL_SERVER_ERROR,
-            content={"error": str(e)}
+        raise HTTPException(
+            status_code=500,
+            detail={"error": str(e)}
         )

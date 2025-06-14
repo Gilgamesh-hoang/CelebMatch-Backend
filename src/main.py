@@ -10,6 +10,7 @@ from api.predict import router as predict_router
 from api.search import router as search_router
 from api.verify import router as verify_router
 from api.lookalike import router as celebs_router
+from src.service.classification_service import ClassificationService
 from src.service.face_service import FaceNetModel
 from src.service.preprocess_image_service import PreprocessingImageService
 from starlette.datastructures import State
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
     app.state.facenet_model = FaceNetModel()
     app.state.preprocess_image_service = PreprocessingImageService(face_number_per_img=3)
     app.state.sematic_search_service = SematicSearchService()
+    app.state.classification_service = ClassificationService()
     yield  # Ứng dụng chạy tại đây
     print("Shutting down application...")
 
