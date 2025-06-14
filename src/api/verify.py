@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.post("/verify")
 async def verify(request: Request, files: List[UploadFile] = File(...)):
-    THRESHOLD = 0.4
+    THRESHOLD = 0.6
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
 
@@ -49,14 +49,10 @@ async def verify(request: Request, files: List[UploadFile] = File(...)):
     emb2 = embeddings[1]
 
     # Tính khoảng cách cosine giữa hai embedding
-    similarity_score = cosine(emb1, emb2)
-    similarity_score = similarity_score.item()
+    similarity_score = float(np.dot(emb1, emb2))
 
-    similarity_percent = round((1- similarity_score) * 100, 2)
-
-    is_same_person = bool(similarity_score < THRESHOLD)
+    is_same_person = similarity_score >= THRESHOLD
     return {
         "is_same_person": is_same_person,
-        "similarity_score": similarity_score,
-        "similarity_percentage": similarity_percent
+        "similarity_score": round(similarity_score, 4),
     }

@@ -9,7 +9,6 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from src.database.celebrity_repository import get_celebrity_info
-from src.service.classification_service import ClassificationService
 
 router = APIRouter()
 
@@ -17,15 +16,13 @@ router = APIRouter()
 async def predict(request: Request, upload_file: UploadFile = File(...)) -> JSONResponse:
     facenet_model = request.app.state.facenet_model
     preprocess_image_service = request.app.state.preprocess_image_service
+    classification_service = request.app.state.classification_service
 
     try:
         # Đọc ảnh từ file upload
         image_bytes: bytes = await upload_file.read()
         image: Image.Image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         image_np: np.ndarray = np.array(image)
-
-        # Khởi tạo các service và model
-        classification_service = ClassificationService()
 
         # Tiền xử lý ảnh, nhận diện khuôn mặt
         preprocessed_objects = preprocess_image_service.pre_process_image([image_np])
